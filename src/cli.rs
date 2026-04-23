@@ -1,4 +1,12 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
+
+#[derive(Debug, Clone, Default, ValueEnum)]
+pub enum OutputMode {
+    #[default]
+    Text,
+    Json,
+    Tui,
+}
 
 /// Command-line interface configuration for CryptoScope.
 ///
@@ -16,13 +24,9 @@ pub struct Cli {
     #[arg(short, long, default_value = "all")]
     pub category: String,
 
-    /// Output format: text or json
+    /// Output format: text, json, or tui
     #[arg(short, long, default_value = "text")]
-    pub output: String,
-
-    /// Filter symbols by status (e.g., Trading, PreLaunch)
-    #[arg(long)]
-    pub status: Option<String>,
+    pub output: OutputMode,
 
     /// Search symbols by name (case-insensitive)
     #[arg(long)]
@@ -39,13 +43,6 @@ impl Cli {
     /// Uses clap to parse and validate command-line arguments.
     pub fn parse_args() -> Self {
         Self::parse()
-    }
-
-    /// Check if JSON output is requested
-    ///
-    /// Returns `true` if the output format is set to "json".
-    pub fn is_json_output(&self) -> bool {
-        self.output.to_lowercase() == "json"
     }
 
     /// Get categories as vector
@@ -71,16 +68,7 @@ mod tests {
         let cli = Cli::parse_from(["cryptoscope"]);
         assert_eq!(cli.exchange, "bybit");
         assert_eq!(cli.category, "all");
-        assert_eq!(cli.output, "text");
-    }
-
-    #[test]
-    fn test_is_json_output() {
-        let cli_text = Cli::parse_from(["cryptoscope", "--output", "text"]);
-        assert!(!cli_text.is_json_output());
-
-        let cli_json = Cli::parse_from(["cryptoscope", "--output", "json"]);
-        assert!(cli_json.is_json_output());
+        assert!(matches!(cli.output, OutputMode::Text));
     }
 
     #[test]
