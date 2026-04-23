@@ -40,29 +40,15 @@ impl TextFormatter {
         println!("Categories: {}", categories.join(", "));
     }
 
-    /// Print statistics breakdown by status, category, and contract type
+    /// Print statistics breakdown by category and contract type
     fn print_statistics(stats: &Statistics) {
         println!("📊 Statistics:");
         println!("  Total Symbols: {}", stats.total_count);
         println!();
 
-        Self::print_status_breakdown(stats);
-        println!();
         Self::print_category_breakdown(stats);
         println!();
         Self::print_contract_breakdown(stats);
-    }
-
-    /// Print status breakdown section
-    fn print_status_breakdown(stats: &Statistics) {
-        println!("  By Status:");
-        // Sort statuses for consistent output
-        let mut status_counts: Vec<_> = stats.by_status.iter().collect();
-        status_counts.sort_by(|a, b| b.1.cmp(a.1)); // Sort by count descending
-
-        for (status, count) in status_counts {
-            println!("    {}: {}", status, count);
-        }
     }
 
     /// Print category breakdown section
@@ -134,8 +120,7 @@ impl TextFormatter {
 
 /// Filter symbols based on various criteria.
 ///
-/// Provides methods to filter symbols by search term, status, or a combination
-/// of multiple criteria.
+/// Provides methods to filter symbols by search term.
 pub struct SymbolFilter;
 
 impl SymbolFilter {
@@ -156,35 +141,13 @@ impl SymbolFilter {
             .collect()
     }
 
-    /// Filter symbols by status
-    ///
-    /// Returns symbols matching the given status (case-insensitive).
-    /// Returns all symbols if the status filter is empty.
-    pub fn by_status(symbols: &[Symbol], status: &str) -> Vec<Symbol> {
-        if status.is_empty() {
-            return symbols.to_vec();
-        }
-
-        symbols
-            .iter()
-            .filter(|s| s.status.to_string().eq_ignore_ascii_case(status))
-            .cloned()
-            .collect()
-    }
-
-    /// Apply multiple filters
-    ///
-    /// Applies search and status filters sequentially.
-    /// Returns all symbols if no filters are provided.
-    pub fn apply(symbols: &[Symbol], search: Option<&str>, status: Option<&str>) -> Vec<Symbol> {
+    /// Apply search filter.
+    /// Returns all symbols if no filter is provided.
+    pub fn apply(symbols: &[Symbol], search: Option<&str>) -> Vec<Symbol> {
         let mut filtered = symbols.to_vec();
 
         if let Some(search_term) = search {
             filtered = Self::by_search(&filtered, search_term);
-        }
-
-        if let Some(status_filter) = status {
-            filtered = Self::by_status(&filtered, status_filter);
         }
 
         filtered
@@ -194,12 +157,10 @@ impl SymbolFilter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::symbol::SymbolStatus;
 
-    fn create_test_symbol(symbol: &str, status: SymbolStatus) -> Symbol {
+    fn create_test_symbol(symbol: &str) -> Symbol {
         Symbol {
             symbol: symbol.to_string(),
-            status,
             category: Some("linear".to_string()),
             contract_type: Some("Linear".to_string()),
             base_coin: Some("BTC".to_string()),
@@ -213,24 +174,12 @@ mod tests {
     #[test]
     fn test_filter_by_search() {
         let symbols = vec![
-            create_test_symbol("BTCUSDT", SymbolStatus::Trading),
-            create_test_symbol("ETHUSDT", SymbolStatus::Trading),
-            create_test_symbol("BTCUSD", SymbolStatus::Trading),
+            create_test_symbol("BTCUSDT"),
+            create_test_symbol("ETHUSDT"),
+            create_test_symbol("BTCUSD"),
         ];
 
         let filtered = SymbolFilter::by_search(&symbols, "BTC");
         assert_eq!(filtered.len(), 2);
-    }
-
-    #[test]
-    fn test_filter_by_status() {
-        let symbols = vec![
-            create_test_symbol("BTCUSDT", SymbolStatus::Trading),
-            create_test_symbol("NEWUSDT", SymbolStatus::PreLaunch),
-        ];
-
-        let filtered = SymbolFilter::by_status(&symbols, "Trading");
-        assert_eq!(filtered.len(), 1);
-        assert_eq!(filtered[0].symbol, "BTCUSDT");
     }
 }

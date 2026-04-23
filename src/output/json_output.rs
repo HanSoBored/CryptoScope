@@ -22,24 +22,13 @@ pub struct JsonOutput {
 
 /// Statistics in JSON-serializable format
 ///
-/// Contains counts organized by status and category for machine-readable output.
+/// Contains counts organized by category for machine-readable output.
 #[derive(Serialize)]
 pub struct JsonStatistics {
     /// Total number of symbols
     pub total_count: usize,
-    /// Count of symbols by status
-    pub by_status: Vec<StatusCount>,
     /// Count of symbols by category
     pub by_category: Vec<CategoryCount>,
-}
-
-/// Status count pair for JSON output
-#[derive(Serialize)]
-pub struct StatusCount {
-    /// The status name (e.g., "Trading", "PreLaunch")
-    pub status: String,
-    /// Number of symbols with this status
-    pub count: usize,
 }
 
 /// Category count pair for JSON output
@@ -56,8 +45,6 @@ pub struct CategoryCount {
 pub struct JsonSymbol {
     /// The symbol/ticker name (e.g., "BTCUSDT")
     pub symbol: String,
-    /// Current trading status
-    pub status: String,
     /// Category of the instrument
     pub category: String,
     /// Type of contract
@@ -83,20 +70,10 @@ impl JsonOutput {
             .iter()
             .map(|s| JsonSymbol {
                 symbol: s.symbol.clone(),
-                status: s.status.to_string(),
                 category: s.category().to_string(),
                 contract_type: s.contract_type().to_string(),
                 base_coin: s.base_coin().to_string(),
                 quote_coin: s.quote_coin().to_string(),
-            })
-            .collect();
-
-        let by_status: Vec<StatusCount> = stats
-            .by_status
-            .iter()
-            .map(|(status, count)| StatusCount {
-                status: status.to_string(),
-                count: *count,
             })
             .collect();
 
@@ -111,11 +88,10 @@ impl JsonOutput {
 
         Self {
             exchange: exchange.to_string(),
-            categories: categories.iter().map(|s| s.to_string()).collect(),
+            categories: categories.iter().map(ToString::to_string).collect(),
             timestamp: chrono_timestamp(),
             statistics: JsonStatistics {
                 total_count: stats.total_count,
-                by_status,
                 by_category,
             },
             symbols: json_symbols,
@@ -159,12 +135,10 @@ pub fn print_json(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::models::symbol::SymbolStatus;
 
     fn create_test_symbol() -> Symbol {
         Symbol {
             symbol: "BTCUSDT".to_string(),
-            status: SymbolStatus::Trading,
             category: Some("linear".to_string()),
             contract_type: Some("Linear".to_string()),
             base_coin: Some("BTC".to_string()),
