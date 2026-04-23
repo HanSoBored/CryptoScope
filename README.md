@@ -10,7 +10,7 @@ Fetch and analyze perpetual/derivative symbols from crypto exchanges with a clea
 - ✅ Support for both linear (USDT) and inverse categories
 - ✅ Automatic pagination handling
 - ✅ Filter by symbol name or status
-- ✅ Multiple output formats (text, JSON)
+- ✅ Multiple output formats (text, JSON, interactive TUI)
 - ✅ Modular architecture - easy to add new exchanges
 - ✅ Fast execution (< 3 seconds for all symbols)
 
@@ -49,6 +49,9 @@ cryptoscope --output text
 
 # Machine-readable JSON output
 cryptoscope --output json > symbols.json
+
+# Interactive terminal UI (TUI)
+cryptoscope --output tui
 ```
 
 ### Filtering
@@ -56,9 +59,6 @@ cryptoscope --output json > symbols.json
 ```bash
 # Search for symbols containing "BTC"
 cryptoscope --search BTC
-
-# Filter by status (Trading, PreLaunch, etc.)
-cryptoscope --status Trading
 
 # Combine filters
 cryptoscope --search ETH --category linear
@@ -76,6 +76,8 @@ cryptoscope --help
 
 ## Example Output
 
+### Text Output
+
 ```
 === CryptoScope: BYBIT Perpetual Symbols ===
 
@@ -84,9 +86,6 @@ Categories: linear, inverse
 
 📊 Statistics:
   Total Symbols: 669
-
-  By Status:
-    Trading: 669
 
   By Category:
     INVERSE (Inverse Perpetual): 27
@@ -104,6 +103,32 @@ Categories: linear, inverse
 
 ✅ Fetch completed in 3.1s
 ```
+
+### TUI Output
+
+Launch the interactive terminal UI:
+
+```bash
+cryptoscope --output tui
+```
+
+The TUI features:
+- **Symbol table** - Scrollable list with selection highlighting
+- **Stats dashboard** - Toggle with `Tab` to view statistics
+- **Search** - Press `/` to filter symbols in real-time
+- **Refresh** - Press `r` to re-fetch symbols from the API
+- **Cyberpunk theme** - Dark UI with neon accent colors
+
+**Key bindings:**
+
+| Key | Action |
+|-----|--------|
+| `q` / `Esc` | Quit |
+| `j` / `↓` | Next symbol |
+| `k` / `↑` | Previous symbol |
+| `/` | Toggle search mode |
+| `Tab` | Toggle symbol list / stats view |
+| `r` | Refresh data |
 
 ## Architecture
 
@@ -160,10 +185,22 @@ cryptoscope/
 │   ├── fetcher/
 │   │   ├── mod.rs
 │   │   └── instrument_fetcher.rs
-│   └── output/
+│   ├── output/
+│   │   ├── mod.rs
+│   │   ├── formatter.rs        # Text output
+│   │   └── json_output.rs      # JSON output
+│   └── tui/
 │       ├── mod.rs
-│       ├── formatter.rs        # Text output
-│       └── json_output.rs      # JSON output
+│       ├── app.rs              # App state management
+│       ├── runner.rs           # TUI event loop
+│       ├── theme.rs            # Cyberpunk color theme
+│       └── widgets/
+│           ├── mod.rs
+│           ├── header.rs       # Header widget
+│           ├── footer.rs       # Footer widget
+│           ├── popup.rs        # Popup/notification widget
+│           ├── stats_panel.rs  # Stats dashboard widget
+│           └── symbol_table.rs # Symbol table widget
 └── tests/
 ```
 
@@ -175,6 +212,9 @@ cryptoscope/
 - **clap** - CLI framework
 - **thiserror + anyhow** - Error handling
 - **tracing** - Logging
+- **ratatui** - Terminal UI framework
+- **crossterm** - Terminal manipulation
+- **unicode-width** - Unicode string width calculation
 
 ## Current Status
 
