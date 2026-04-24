@@ -112,16 +112,16 @@ impl TuiApp {
         // Main event loop
         loop {
             // RefCell needed: render closure is FnMut and borrows mutably;
-        // can't pass &mut click_regions through closure boundary.
-        let click_regions_cell = RefCell::new(crate::tui::mouse::ClickRegions::new());
-            
+            // can't pass &mut click_regions through closure boundary.
+            let click_regions_cell = RefCell::new(crate::tui::mouse::ClickRegions::new());
+
             let mut state_write = state.write().await;
             terminal.draw(|frame| {
                 let regions = crate::tui::widgets::render(frame, &mut state_write);
                 *click_regions_cell.borrow_mut() = regions;
             })?;
             drop(state_write);
-            
+
             let click_regions = click_regions_cell.into_inner();
 
             if event::poll(Duration::from_millis(250))? {
