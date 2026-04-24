@@ -13,8 +13,6 @@ impl CyberdeckTheme {
     pub const DARK_BG: Color = Color::Rgb(34, 37, 41);
     pub const LINE: Color = Color::Rgb(57, 62, 70);
     pub const TAG: Color = Color::Rgb(86, 130, 177);
-    /// Highlight background for selected table rows.
-    pub const HIGHLIGHT_BG: Color = Color::Rgb(0, 49, 97);
     pub const WHITE: Color = Color::Rgb(200, 200, 200);
     pub const DIM: Color = Color::Rgb(100, 100, 120);
     pub const RED: Color = Color::Rgb(255, 80, 80);
