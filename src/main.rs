@@ -61,7 +61,7 @@ async fn run(cli: Cli) -> Result<()> {
     let elapsed = start_time.elapsed();
 
     // Output results
-    match cli.output {
+    match cli.get_output_mode() {
         OutputMode::Json => {
             print_json(&cli.exchange, &categories, &filtered_symbols, &stats)?;
         }
@@ -110,7 +110,7 @@ async fn main() -> Result<()> {
         "Exchange: {}, Category: {:?}, Output: {:?}",
         cli.exchange,
         cli.get_categories(),
-        cli.output
+        cli.get_output_mode()
     );
 
     run(cli).await
