@@ -8,8 +8,6 @@ use ratatui::widgets::{Cell, Row, Scrollbar, ScrollbarOrientation, ScrollbarStat
 
 /// Header row height
 const HEADER_HEIGHT: u16 = 1;
-/// Title line height in themed block
-const TITLE_HEIGHT: u16 = 1;
 /// Top border thickness
 const TOP_BORDER: u16 = 1;
 
@@ -28,7 +26,7 @@ fn row_style(is_selected: bool) -> Style {
 fn add_row_click_regions(click_regions: &mut ClickRegions, content_area: Rect, state: &AppState) {
     let offset = state.table_state.offset();
     let visible_rows = content_area.height.saturating_sub(HEADER_HEIGHT) as usize;
-    let content_start_y = content_area.y + TITLE_HEIGHT + TOP_BORDER;
+    let content_start_y = content_area.y + TOP_BORDER;
 
     for (visible_idx, symbol_idx) in (offset..state.filtered.len())
         .take(visible_rows)
@@ -118,7 +116,7 @@ fn render_scrollbar(frame: &mut Frame, scrollbar_area: Rect, state: &AppState) {
         return;
     }
 
-    let chrome = HEADER_HEIGHT + TITLE_HEIGHT + TOP_BORDER;
+    let chrome = HEADER_HEIGHT + TOP_BORDER;
     let content_height = scrollbar_area.height.saturating_sub(chrome) as usize;
 
     let total_rows = state.filtered.len();
