@@ -1,11 +1,12 @@
 use crate::models::Statistics;
 use crate::models::symbol::Symbol;
 use crate::output::SymbolFilter;
+use crate::tui::mouse::{ClickAction, HeaderTab, ScrollDirection};
 use ratatui::widgets::TableState;
 use std::time::Instant;
 
 /// Represents the current view mode of the TUI application.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AppView {
     SymbolList,
     StatsDashboard,
@@ -181,5 +182,62 @@ impl AppState {
     pub fn dismiss_popup(&mut self) {
         self.popup_message = None;
         self.popup_timer = None;
+    }
+
+    /// Handle scroll up action (scroll wheel up or click on scroll up button).
+    pub fn on_scroll_up(&mut self) {
+        self.select_prev();
+    }
+
+    /// Handle scroll down action (scroll wheel down or click on scroll down button).
+    pub fn on_scroll_down(&mut self) {
+        self.select_next();
+    }
+
+    /// Handle click on a table row at the given index.
+    pub fn on_table_click(&mut self, row_index: usize) {
+        if row_index < self.filtered.len() {
+            self.table_state.select(Some(row_index));
+        }
+    }
+
+    /// Handle click on a header tab.
+    pub fn on_header_tab_click(&mut self, tab: HeaderTab) {
+        self.view = match tab {
+            HeaderTab::SymbolList => AppView::SymbolList,
+            HeaderTab::StatsDashboard => AppView::StatsDashboard,
+        };
+    }
+
+    /// Handle click on scrollbar track for page up/down.
+    pub fn on_scrollbar_track_click(&mut self, direction: ScrollDirection) {
+        if self.filtered.is_empty() {
+            return;
+        }
+        // Jump 20% of list or 10 rows, whichever is larger
+        let jump = 10.max(self.filtered.len() / 5);
+        match direction {
+            ScrollDirection::Up => {
+                let current = self.table_state.selected().unwrap_or(0);
+                let new_pos = current.saturating_sub(jump);
+                self.table_state.select(Some(new_pos));
+            }
+            ScrollDirection::Down => {
+                let current = self.table_state.selected().unwrap_or(0);
+                let new_pos = (current + jump).min(self.filtered.len().saturating_sub(1));
+                self.table_state.select(Some(new_pos));
+            }
+        }
+    }
+
+    /// Handle a mouse click action.
+    pub fn on_mouse_click(&mut self, action: &ClickAction) {
+        match action {
+            ClickAction::ScrollUp => self.on_scroll_up(),
+            ClickAction::ScrollDown => self.on_scroll_down(),
+            ClickAction::TableRow(index) => self.on_table_click(*index),
+            ClickAction::HeaderTab(tab) => self.on_header_tab_click(*tab),
+            ClickAction::ScrollbarTrack(direction) => self.on_scrollbar_track_click(*direction),
+        }
     }
 }

@@ -1,12 +1,13 @@
 # CryptoScope 🔍
 
 **Multi-exchange crypto symbols intelligence tool**
+Fetch and analyze perpetual/derivative symbols from crypto exchanges with a clean, modular TUI interface.
 
-Fetch and analyze perpetual/derivative symbols from crypto exchanges with a clean, modular CLI interface.
+---
 
 ## Features
 
-- ✅ Fetch all perpetual and derivative symbols from Bybit V5 API
+- ✅ Fetch all perpetual and derivative symbols from Exchange
 - ✅ Support for both linear (USDT) and inverse categories
 - ✅ Automatic pagination handling
 - ✅ Filter by symbol name or status
@@ -26,12 +27,14 @@ cargo build --release
 cargo install --path .
 ```
 
+---
+
 ## Usage
 
 ### Basic Usage
 
 ```bash
-# Fetch all symbols from Bybit (linear + inverse)
+# Launch interactive TUI
 cryptoscope
 
 # Fetch only linear (USDT perpetual) symbols
@@ -44,15 +47,19 @@ cryptoscope --category inverse
 ### Output Formats
 
 ```bash
-# Human-readable text output (default)
+# Interactive terminal UI (TUI)
+cryptoscope
+
+# Human-readable text output
 cryptoscope --output text
+# or use the convenience flag
+cryptoscope --cli
 
 # Machine-readable JSON output
 cryptoscope --output json > symbols.json
-
-# Interactive terminal UI (TUI)
-cryptoscope --output tui
 ```
+
+**Note:** `--cli` is a shorthand for `--output text`. These flags conflict with each other.
 
 ### Filtering
 
@@ -73,6 +80,8 @@ cryptoscope --verbose
 # See all available options
 cryptoscope --help
 ```
+
+---
 
 ## Example Output
 
@@ -106,11 +115,7 @@ Categories: linear, inverse
 
 ### TUI Output
 
-Launch the interactive terminal UI:
-
-```bash
-cryptoscope --output tui
-```
+![TUI](docs/image/TUI.png)
 
 The TUI features:
 - **Symbol table** - Scrollable list with selection highlighting
@@ -130,28 +135,7 @@ The TUI features:
 | `Tab` | Toggle symbol list / stats view |
 | `r` | Refresh data |
 
-## Architecture
-
-CryptoScope uses a trait-based architecture for easy extensibility:
-
-```
-┌─────────────────────────────────────┐
-│           CLI Layer                 │
-│  (main.rs + cli.rs)                 │
-└─────────────────────────────────────┘
-                 │
-                 ▼
-┌─────────────────────────────────────┐
-│      Exchange Trait                 │
-│  (exchange/exchange_trait.rs)       │
-└─────────────────────────────────────┘
-         ▲                  ▲
-         │                  │
-  ┌──────┴──────┐   ┌───────┴────────┐
-  │ BybitClient │   │ BinanceClient  │ (future)
-  │  (v1.0)     │   │  (v2.0)        │
-  └─────────────┘   └────────────────┘
-```
+---
 
 ### Adding a New Exchange
 
@@ -163,58 +147,7 @@ To add support for a new exchange (e.g., Binance):
 
 That's it! No changes to existing code required.
 
-## Project Structure
-
-```
-cryptoscope/
-├── Cargo.toml
-├── src/
-│   ├── main.rs                 # Entry point
-│   ├── cli.rs                  # CLI argument parsing
-│   ├── error.rs                # Error types
-│   ├── models/
-│   │   ├── mod.rs
-│   │   ├── symbol.rs           # Symbol struct
-│   │   ├── response.rs         # API responses
-│   │   └── statistics.rs       # Statistics aggregation
-│   ├── exchange/
-│   │   ├── mod.rs
-│   │   ├── exchange_trait.rs   # Exchange trait
-│   │   ├── bybit.rs            # Bybit implementation
-│   │   └── factory.rs          # Exchange factory
-│   ├── fetcher/
-│   │   ├── mod.rs
-│   │   └── instrument_fetcher.rs
-│   ├── output/
-│   │   ├── mod.rs
-│   │   ├── formatter.rs        # Text output
-│   │   └── json_output.rs      # JSON output
-│   └── tui/
-│       ├── mod.rs
-│       ├── app.rs              # App state management
-│       ├── runner.rs           # TUI event loop
-│       ├── theme.rs            # Cyberpunk color theme
-│       └── widgets/
-│           ├── mod.rs
-│           ├── header.rs       # Header widget
-│           ├── footer.rs       # Footer widget
-│           ├── popup.rs        # Popup/notification widget
-│           ├── stats_panel.rs  # Stats dashboard widget
-│           └── symbol_table.rs # Symbol table widget
-└── tests/
-```
-
-## Tech Stack
-
-- **tokio** - Async runtime
-- **reqwest** - HTTP client
-- **serde + serde_json** - JSON serialization
-- **clap** - CLI framework
-- **thiserror + anyhow** - Error handling
-- **tracing** - Logging
-- **ratatui** - Terminal UI framework
-- **crossterm** - Terminal manipulation
-- **unicode-width** - Unicode string width calculation
+---
 
 ## Current Status
 
@@ -227,6 +160,8 @@ cryptoscope/
 - ⏳ Binance Futures
 - ⏳ OKX Derivatives
 - ⏳ Symbol comparison across exchanges
+
+---
 
 ## License
 

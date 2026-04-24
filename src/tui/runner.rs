@@ -3,8 +3,10 @@ use crate::fetcher::InstrumentFetcher;
 use crate::tui::app::AppState;
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
+use crossterm::event::{MouseEvent, MouseEventKind};
 use ratatui::Terminal;
 use ratatui::backend::CrosstermBackend;
+use std::cell::RefCell;
 use std::io;
 use std::sync::Arc;
 use std::time::Duration;
@@ -73,11 +75,7 @@ fn suppress_logs() {
 
 fn restore_logs() {
     if let Some(handle) = crate::LOG_RELOAD_HANDLE.get() {
-        let level = if std::env::var("RUST_LOG").is_ok() {
-            std::env::var("RUST_LOG").unwrap_or_default()
-        } else {
-            "cryptoscope=info".to_string()
-        };
+        let level = std::env::var("RUST_LOG").unwrap_or_else(|_| "cryptoscope=info".to_string());
         let _ = handle.modify(|filter| {
             *filter = EnvFilter::new(level);
         });
@@ -113,32 +111,46 @@ impl TuiApp {
 
         // Main event loop
         loop {
-            let state_read = state.read().await;
+            // RefCell needed: render closure is FnMut and borrows mutably;
+            // can't pass &mut click_regions through closure boundary.
+            let click_regions_cell = RefCell::new(crate::tui::mouse::ClickRegions::new());
+
+            let mut state_write = state.write().await;
             terminal.draw(|frame| {
-                crate::tui::widgets::render(frame, &state_read);
+                let regions = crate::tui::widgets::render(frame, &mut state_write);
+                *click_regions_cell.borrow_mut() = regions;
             })?;
-            drop(state_read);
+            drop(state_write);
 
-            if event::poll(Duration::from_millis(250))?
-                && let Event::Key(key) = event::read()?
-            {
-                if key.kind != KeyEventKind::Press {
-                    continue;
-                }
+            let click_regions = click_regions_cell.into_inner();
 
+            if event::poll(Duration::from_millis(250))? {
+                let event = event::read()?;
                 let mut app_state = state.write().await;
 
-                // Handle popup dismissal first
+                // Handle popup dismissal first (for any event)
                 if app_state.popup_message.is_some() {
                     app_state.dismiss_popup();
-                    continue;
+                    if let Event::Key(_) = event {
+                        continue;
+                    }
                 }
 
-                // Dispatch key event
-                if Self::handle_key_event(&mut app_state, key, &state) {
-                    // handle_key_event returned true → quit requested
-                    guard.restore()?;
-                    return Ok(());
+                match event {
+                    Event::Key(key) => {
+                        if key.kind != KeyEventKind::Press {
+                            continue;
+                        }
+                        if Self::handle_key_event(&mut app_state, key, &state) {
+                            // handle_key_event returned true → quit requested
+                            guard.restore()?;
+                            return Ok(());
+                        }
+                    }
+                    Event::Mouse(mouse) => {
+                        Self::handle_mouse_event(&mut app_state, mouse, &click_regions);
+                    }
+                    _ => {}
                 }
             }
 
@@ -195,6 +207,28 @@ impl TuiApp {
                 false
             }
             _ => false,
+        }
+    }
+
+    /// Handle a mouse event by hit-testing against click regions.
+    fn handle_mouse_event(
+        app_state: &mut AppState,
+        mouse: MouseEvent,
+        click_regions: &crate::tui::mouse::ClickRegions,
+    ) {
+        match mouse.kind {
+            MouseEventKind::ScrollDown => {
+                app_state.on_scroll_down();
+            }
+            MouseEventKind::ScrollUp => {
+                app_state.on_scroll_up();
+            }
+            MouseEventKind::Down(_) => {
+                if let Some(action) = click_regions.hit_test(mouse.column, mouse.row) {
+                    app_state.on_mouse_click(action);
+                }
+            }
+            _ => {}
         }
     }
 
