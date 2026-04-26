@@ -1,6 +1,6 @@
 use crate::tui::app::AppState;
 use crate::tui::mouse::{ClickAction, ClickRegions};
-use crate::tui::theme::CyberdeckTheme;
+use crate::tui::theme;
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use ratatui::style::Style;
@@ -13,39 +13,39 @@ pub fn render(frame: &mut Frame, area: Rect, state: &AppState, click_regions: &m
     if state.loading {
         spans.push(Span::styled(
             "  Refreshing... ",
-            CyberdeckTheme::footer_item_style(),
+            theme::footer_item_style(),
         ));
     }
 
     if state.search_mode {
         spans.push(Span::styled(
             format!("  /{} ", state.search),
-            CyberdeckTheme::footer_style(),
+            theme::footer_style(),
         ));
     }
 
     let count_text = format!(" Rows: {} ", state.filtered.len());
     spans.push(Span::styled(
         &count_text,
-        CyberdeckTheme::footer_item_style(),
+        theme::footer_item_style(),
     ));
 
     let view_text = match &state.view {
         crate::tui::app::AppView::SymbolList => " [Tab]Stats ",
         crate::tui::app::AppView::StatsDashboard => " [Tab]List ",
     };
-    spans.push(Span::styled(view_text, CyberdeckTheme::footer_item_style()));
+    spans.push(Span::styled(view_text, theme::footer_item_style()));
 
     let keys = " [q/Esc]quit [j/k]nav [/]search [r]efresh ";
     spans.push(Span::styled(
         keys,
         Style::default()
-            .fg(CyberdeckTheme::DIM)
-            .bg(CyberdeckTheme::BLACK),
+            .fg(theme::DIM)
+            .bg(theme::BLACK),
     ));
 
     let line = Line::from(spans);
-    let paragraph = Paragraph::new(line).style(Style::default().bg(CyberdeckTheme::BLACK));
+    let paragraph = Paragraph::new(line).style(Style::default().bg(theme::BLACK));
     frame.render_widget(paragraph, area);
 
     // Add scroll click regions on right edge of footer

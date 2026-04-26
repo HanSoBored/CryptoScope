@@ -1,6 +1,6 @@
 use crate::tui::app::AppState;
 use crate::tui::mouse::{ClickAction, ClickRegions, ScrollDirection};
-use crate::tui::theme::CyberdeckTheme;
+use crate::tui::theme;
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Modifier, Style};
@@ -15,10 +15,10 @@ const TOP_BORDER: u16 = 1;
 fn row_style(is_selected: bool) -> Style {
     if is_selected {
         Style::default()
-            .fg(CyberdeckTheme::TAG)
+            .fg(theme::TAG)
             .add_modifier(Modifier::BOLD)
     } else {
-        Style::default().fg(CyberdeckTheme::WHITE)
+        Style::default().fg(theme::WHITE)
     }
 }
 
@@ -76,7 +76,7 @@ fn build_table_rows(state: &AppState) -> (Row<'_>, Vec<Row<'_>>) {
     ])
     .style(
         Style::default()
-            .fg(CyberdeckTheme::DARK_BG)
+            .fg(theme::DARK_BG)
             .add_modifier(Modifier::BOLD),
     );
 
@@ -130,7 +130,7 @@ fn render_scrollbar(frame: &mut Frame, scrollbar_area: Rect, state: &AppState) {
         .end_symbol(Some("▼"))
         .thumb_symbol("│")
         .track_symbol(Some("║"))
-        .style(Style::default().fg(CyberdeckTheme::TAG));
+        .style(Style::default().fg(theme::TAG));
 
     frame.render_stateful_widget(scrollbar, scrollbar_area, &mut scrollbar_state);
 }
@@ -157,10 +157,10 @@ pub fn render(
 
     let table = Table::new(rows, widths)
         .header(header)
-        .block(CyberdeckTheme::themed_block("  List Crypto "))
+        .block(theme::themed_block(" List Crypto "))
         .row_highlight_style(
             Style::default()
-                .fg(CyberdeckTheme::TAG)
+                .fg(theme::TAG)
                 .add_modifier(Modifier::BOLD),
         )
         .highlight_symbol("▸ ");

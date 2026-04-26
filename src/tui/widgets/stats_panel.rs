@@ -1,5 +1,5 @@
 use crate::tui::app::AppState;
-use crate::tui::theme::CyberdeckTheme;
+use crate::tui::theme;
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Modifier, Style};
@@ -37,48 +37,35 @@ fn render_total_panel(frame: &mut Frame, area: Rect, state: &AppState) {
     let lines = vec![Line::from(vec![Span::styled(
         format!("Total: {total}{loading_indicator}"),
         Style::default()
-            .fg(CyberdeckTheme::WHITE)
+            .fg(theme::WHITE)
             .add_modifier(Modifier::BOLD),
     )])];
 
-    let paragraph = Paragraph::new(lines).block(CyberdeckTheme::themed_block(" Overview "));
+    let paragraph = Paragraph::new(lines).block(theme::themed_block(" Overview "));
     frame.render_widget(paragraph, area);
 }
 
 fn render_category_panel(frame: &mut Frame, area: Rect, state: &AppState) {
-    let items: Vec<(String, usize)> = state
-        .stats
-        .iter()
-        .flat_map(|stats| {
-            let mut counts: Vec<_> = stats
-                .by_category
-                .iter()
-                .map(|(k, v)| (k.clone(), *v))
-                .collect();
-            counts.sort_by_key(|b| std::cmp::Reverse(b.1));
-            counts
-        })
-        .collect();
+    let items = collect_sorted_stats(state.stats.iter().flat_map(|stats| {
+        stats.by_category.iter().map(|(k, v)| (k.clone(), *v))
+    }));
 
     render_stat_panel(" By Category ", &items, 12, frame, area);
 }
 
 fn render_contract_panel(frame: &mut Frame, area: Rect, state: &AppState) {
-    let items: Vec<(String, usize)> = state
-        .stats
-        .iter()
-        .flat_map(|stats| {
-            let mut counts: Vec<_> = stats
-                .by_contract_type
-                .iter()
-                .map(|(k, v)| (k.clone(), *v))
-                .collect();
-            counts.sort_by_key(|b| std::cmp::Reverse(b.1));
-            counts
-        })
-        .collect();
+    let items = collect_sorted_stats(state.stats.iter().flat_map(|stats| {
+        stats.by_contract_type.iter().map(|(k, v)| (k.clone(), *v))
+    }));
 
     render_stat_panel(" By Contract ", &items, 20, frame, area);
+}
+
+/// Collect and sort stat items by count descending.
+fn collect_sorted_stats(items: impl Iterator<Item = (String, usize)>) -> Vec<(String, usize)> {
+    let mut counts: Vec<_> = items.collect();
+    counts.sort_by_key(|b| std::cmp::Reverse(b.1));
+    counts
 }
 
 /// Generic helper to render a stat panel with labeled key-value pairs.
@@ -102,16 +89,16 @@ fn render_stat_panel(
             Line::from(vec![
                 Span::styled(
                     format!("{label:<label_width$}"),
-                    Style::default().fg(CyberdeckTheme::WHITE),
+                    Style::default().fg(theme::WHITE),
                 ),
                 Span::styled(
                     format!(" {count}"),
-                    Style::default().fg(CyberdeckTheme::WHITE),
+                    Style::default().fg(theme::WHITE),
                 ),
             ])
         })
         .collect();
 
-    let paragraph = Paragraph::new(lines).block(CyberdeckTheme::themed_block(title));
+    let paragraph = Paragraph::new(lines).block(theme::themed_block(title));
     frame.render_widget(paragraph, area);
 }
