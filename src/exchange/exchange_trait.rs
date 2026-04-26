@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::models::Symbol;
+use crate::models::{DailyKline, Symbol, Ticker};
 use async_trait::async_trait;
 
 /// Trait that all exchange clients must implement
@@ -22,4 +22,10 @@ pub trait Exchange: Send + Sync {
         }
         Ok(all_symbols)
     }
+
+    /// Fetch all tickers for a category
+    async fn fetch_tickers(&self, category: &str) -> Result<Vec<Ticker>>;
+
+    /// Fetch daily k-line for a specific symbol and category
+    async fn fetch_daily_kline(&self, symbol: &str, category: &str) -> Result<DailyKline>;
 }

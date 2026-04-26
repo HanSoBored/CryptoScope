@@ -32,7 +32,7 @@ pub struct Symbol {
 }
 
 impl Symbol {
-    /// Get category with fallback to empty string
+    /// Get category with fallback to "unknown".
     ///
     /// Returns the instrument category (e.g., "linear", "inverse") or "unknown"
     /// if not specified.
@@ -60,19 +60,5 @@ impl Symbol {
     /// Returns the quote currency code (e.g., "USDT") or "UNKNOWN" if not specified.
     pub fn quote_coin(&self) -> &str {
         self.quote_coin.as_deref().unwrap_or("UNKNOWN")
-    }
-
-    /// Get a short description of the contract type
-    ///
-    /// Returns a human-readable description of the contract type
-    /// (e.g., "USDT Perpetual" for Linear contracts).
-    #[allow(dead_code)]
-    pub fn contract_description(&self) -> &str {
-        match self.contract_type() {
-            "Linear" => "USDT Perpetual",
-            "InversePerpetual" => "Inverse Perpetual",
-            "InverseFutures" => "Inverse Futures",
-            other => other,
-        }
     }
 }

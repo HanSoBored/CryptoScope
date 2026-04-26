@@ -53,6 +53,82 @@ impl BybitApiResponse {
     }
 }
 
+/// Ticker endpoint response structure
+#[derive(Debug, Clone, Deserialize)]
+pub struct TickerApiResponse {
+    #[serde(rename = "retCode")]
+    pub ret_code: i32,
+    #[serde(rename = "retMsg")]
+    pub ret_msg: String,
+    pub result: TickerApiResult,
+}
+
+/// Result section of the ticker API response.
+///
+/// Contains the category and list of raw ticker data returned by
+/// the Bybit `/v5/market/tickers` endpoint.
+#[derive(Debug, Clone, Deserialize)]
+pub struct TickerApiResult {
+    /// The category of instruments (e.g., "linear", "inverse").
+    #[allow(dead_code)]
+    pub category: String,
+    /// List of raw ticker responses with string-encoded numeric fields.
+    pub list: Vec<TickerRawResponse>,
+}
+
+/// Raw ticker response with string fields (API returns strings).
+///
+/// Numeric fields are stored as strings by the Bybit API and must be
+/// parsed separately.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TickerRawResponse {
+    /// The symbol/ticker name (e.g., "BTCUSDT").
+    pub symbol: String,
+    /// Last traded price as a string.
+    pub last_price: String,
+    /// Price 24 hours ago as a string.
+    pub prev_price_24h: String,
+    /// Price change percentage over 24h as a string.
+    #[allow(dead_code)]
+    pub price_24h_pcnt: String,
+    /// Highest price in the last 24h as a string.
+    #[allow(dead_code)]
+    pub high_price_24h: String,
+    /// Lowest price in the last 24h as a string.
+    #[allow(dead_code)]
+    pub low_price_24h: String,
+    /// Trading volume in the last 24h as a string.
+    pub volume_24h: String,
+}
+
+/// K-line endpoint response structure.
+#[derive(Debug, Clone, Deserialize)]
+pub struct KlineApiResponse {
+    #[serde(rename = "retCode")]
+    pub ret_code: i32,
+    #[serde(rename = "retMsg")]
+    pub ret_msg: String,
+    pub result: KlineApiResult,
+}
+
+/// Result section of the K-line API response.
+///
+/// Contains the symbol, category, and list of K-line data arrays returned
+/// by the Bybit `/v5/market/kline` endpoint.
+#[derive(Debug, Clone, Deserialize)]
+pub struct KlineApiResult {
+    /// The symbol identifier.
+    #[allow(dead_code)]
+    pub symbol: String,
+    /// The category of instruments (e.g., "linear", "inverse").
+    #[allow(dead_code)]
+    pub category: String,
+    /// List of K-line data arrays. Each inner array contains:
+    /// [timestamp, open, high, low, close, volume, turnover].
+    pub list: Vec<Vec<String>>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

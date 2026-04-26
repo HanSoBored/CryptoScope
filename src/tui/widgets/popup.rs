@@ -4,7 +4,7 @@ use ratatui::style::{Modifier, Style};
 use ratatui::text::Text;
 use ratatui::widgets::{Block, BorderType, Clear, Paragraph, Wrap};
 
-use crate::tui::theme::CyberdeckTheme;
+use crate::tui::theme;
 
 const MIN_WIDTH: u16 = 24;
 const MAX_WIDTH: u16 = 60;
@@ -48,17 +48,11 @@ pub fn render_popup(frame: &mut Frame, message: &str, is_error: bool) {
     let (title, border_color, text_style) = if is_error {
         (
             " ERROR ",
-            CyberdeckTheme::RED,
-            Style::default()
-                .fg(CyberdeckTheme::RED)
-                .add_modifier(Modifier::BOLD),
+            theme::RED,
+            Style::default().fg(theme::RED).add_modifier(Modifier::BOLD),
         )
     } else {
-        (
-            " INFO ",
-            CyberdeckTheme::BLUE,
-            Style::default().fg(CyberdeckTheme::WHITE),
-        )
+        (" INFO ", theme::BLUE, Style::default().fg(theme::WHITE))
     };
 
     let block = Block::bordered()
@@ -67,7 +61,7 @@ pub fn render_popup(frame: &mut Frame, message: &str, is_error: bool) {
         .border_style(Style::default().fg(border_color))
         .style(
             Style::default()
-                .bg(CyberdeckTheme::BLACK)
+                .bg(theme::BLACK)
                 .add_modifier(Modifier::BOLD),
         );
 

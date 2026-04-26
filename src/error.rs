@@ -9,17 +9,11 @@ pub enum CryptoScopeError {
     #[error("JSON parsing failed: {0}")]
     ParseError(#[from] serde_json::Error),
 
-    #[error("Exchange error: {0}")]
-    #[allow(dead_code)]
-    ExchangeError(String),
+    #[error("Database error: {0}")]
+    DbError(#[from] rusqlite::Error),
 
-    #[error("Pagination error: {0}")]
-    #[allow(dead_code)]
-    PaginationError(String),
-
-    #[error("Invalid category: {0}. Must be 'linear', 'inverse', or 'all'")]
-    #[allow(dead_code)]
-    InvalidCategory(String),
+    #[error("Database internal error: {0}")]
+    DbInternal(String),
 
     #[error("Unknown exchange: {0}. Supported: bybit")]
     UnknownExchange(String),

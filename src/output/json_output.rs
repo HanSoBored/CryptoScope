@@ -12,32 +12,12 @@ pub struct JsonOutput {
     pub exchange: String,
     /// List of categories included in the output
     pub categories: Vec<String>,
-    /// Unix timestamp of when the report was generated
+    /// ISO 8601 timestamp of when the report was generated
     pub timestamp: String,
     /// Aggregated statistics about the symbols
-    pub statistics: JsonStatistics,
+    pub statistics: Statistics,
     /// List of all symbols with their details
     pub symbols: Vec<JsonSymbol>,
-}
-
-/// Statistics in JSON-serializable format
-///
-/// Contains counts organized by category for machine-readable output.
-#[derive(Serialize)]
-pub struct JsonStatistics {
-    /// Total number of symbols
-    pub total_count: usize,
-    /// Count of symbols by category
-    pub by_category: Vec<CategoryCount>,
-}
-
-/// Category count pair for JSON output
-#[derive(Serialize)]
-pub struct CategoryCount {
-    /// The category name (e.g., "linear", "inverse")
-    pub category: String,
-    /// Number of symbols in this category
-    pub count: usize,
 }
 
 /// Symbol information in JSON-serializable format
@@ -77,23 +57,11 @@ impl JsonOutput {
             })
             .collect();
 
-        let by_category: Vec<CategoryCount> = stats
-            .by_category
-            .iter()
-            .map(|(category, count)| CategoryCount {
-                category: category.clone(),
-                count: *count,
-            })
-            .collect();
-
         Self {
             exchange: exchange.to_string(),
             categories: categories.iter().map(ToString::to_string).collect(),
-            timestamp: chrono_timestamp(),
-            statistics: JsonStatistics {
-                total_count: stats.total_count,
-                by_category,
-            },
+            timestamp: chrono::Utc::now().to_rfc3339(),
+            statistics: stats.clone(),
             symbols: json_symbols,
         }
     }
@@ -104,20 +72,6 @@ impl JsonOutput {
     pub fn to_json(&self) -> Result<String> {
         Ok(serde_json::to_string_pretty(self)?)
     }
-}
-
-fn chrono_timestamp() -> String {
-    use std::time::SystemTime;
-
-    let duration = SystemTime::now()
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .expect("SystemTime before UNIX EPOCH");
-
-    let secs = duration.as_secs();
-    let nanos = duration.subsec_nanos();
-
-    // Simple ISO-like format without external dependency
-    format!("{}.{}", secs, nanos)
 }
 
 /// Print JSON output to stdout
@@ -135,23 +89,11 @@ pub fn print_json(
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    fn create_test_symbol() -> Symbol {
-        Symbol {
-            symbol: "BTCUSDT".to_string(),
-            category: Some("linear".to_string()),
-            contract_type: Some("Linear".to_string()),
-            base_coin: Some("BTC".to_string()),
-            quote_coin: Some("USDT".to_string()),
-            launch_time: None,
-            delivery_time: None,
-            delivery_fee_rate: None,
-        }
-    }
+    use crate::test_utils::create_test_symbol;
 
     #[test]
     fn test_json_output_creation() {
-        let symbols = vec![create_test_symbol()];
+        let symbols = vec![create_test_symbol("BTCUSDT", "linear")];
         let stats = Statistics::from_symbols(&symbols);
 
         let output = JsonOutput::new("bybit", &["linear"], &symbols, &stats);
@@ -163,7 +105,7 @@ mod tests {
 
     #[test]
     fn test_json_serialization() {
-        let symbols = vec![create_test_symbol()];
+        let symbols = vec![create_test_symbol("BTCUSDT", "linear")];
         let stats = Statistics::from_symbols(&symbols);
 
         let output = JsonOutput::new("bybit", &["linear"], &symbols, &stats);
