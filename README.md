@@ -15,11 +15,11 @@ Fetch and analyze perpetual/derivative symbols from crypto exchanges with a clea
 - ✅ Multiple output formats (text, JSON, interactive TUI)
 - ✅ Modular architecture - easy to add new exchanges
 - ✅ Fast execution (< 3 seconds for all symbols)
-- ✅ Price Screener CLI** — Fetch and display symbols with price changes
-- ✅ Database Caching** — Daily open prices cached in SQLite (once per day)
-- ✅ Two Modes** — Ticker mode (fast) and K-line mode (accurate)
-- ✅ Filtering** — Filter by min change %, min volume, symbol search, top N
-- ✅ Color Output** — Green for gains, red for lossers
+- ✅ Price Screener CLI — Fetch and display symbols with price changes
+- ✅ Database Caching — Daily open prices cached in SQLite (once per day)
+- ✅ Two Modes — Ticker mode (fast) and K-line mode (accurate)
+- ✅ Filtering — Filter by min change %, min volume, symbol search, top N
+- ✅ Color Output — Green for gains, red for lossers
 
 ## Installation
 
