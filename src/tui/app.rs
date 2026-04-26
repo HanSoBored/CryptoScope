@@ -1,6 +1,6 @@
 use crate::models::Statistics;
 use crate::models::symbol::Symbol;
-use crate::output::SymbolFilter;
+use crate::output::filter_by_search;
 use crate::tui::mouse::{ClickAction, HeaderTab, ScrollDirection};
 use ratatui::widgets::TableState;
 use std::time::Instant;
@@ -74,7 +74,7 @@ impl AppState {
         let mut filtered = self.symbols.clone();
 
         if !self.search.is_empty() {
-            filtered = SymbolFilter::by_search(&filtered, &self.search);
+            filtered = filter_by_search(&filtered, &self.search);
         }
 
         self.filtered = filtered;

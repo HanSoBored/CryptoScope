@@ -4,4 +4,4 @@ pub mod runner;
 pub mod theme;
 pub mod widgets;
 
-pub use runner::TuiApp;
+pub use runner::run;
