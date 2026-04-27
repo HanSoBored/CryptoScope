@@ -53,21 +53,23 @@ impl Statistics {
     ///
     /// Aggregates symbol counts by category and contract type
     /// for analysis and reporting.
-    pub fn from_symbols(symbols: &[Symbol]) -> Self {
+    pub fn from_symbols<'a>(symbols: impl IntoIterator<Item = &'a Symbol>) -> Self {
         let mut by_category = HashMap::new();
         let mut by_contract_type = HashMap::new();
+        let mut total_count = 0;
 
         for symbol in symbols {
+            total_count += 1;
             *by_category
                 .entry(symbol.category().to_string())
                 .or_insert(0) += 1;
             *by_contract_type
-                .entry(symbol.contract_type().to_string())
+                .entry(symbol.contract_type_parsed().display_name().to_string())
                 .or_insert(0) += 1;
         }
 
         Self {
-            total_count: symbols.len(),
+            total_count,
             by_category,
             by_contract_type,
         }

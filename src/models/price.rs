@@ -1,4 +1,5 @@
 use crate::models::response::TickerRawResponse;
+use crate::models::ContractType;
 use crate::utils::parse_f64_or_zero;
 
 /// Ticker from /v5/market/tickers endpoint
@@ -12,7 +13,7 @@ pub struct Ticker {
 }
 
 impl Ticker {
-    /// Create a ticker from raw response with explicit category
+    /// Create a ticker from raw response with explicit category.
     pub fn from_raw(raw: &TickerRawResponse, category: &str) -> Self {
         Self {
             symbol: raw.symbol.clone(),
@@ -35,6 +36,7 @@ pub struct DailyKline {
 pub struct PriceChange {
     pub symbol: String,
     pub category: String,
+    pub contract_type: ContractType,
     pub open_price: f64,
     pub current_price: f64,
     pub change_value: f64,
@@ -42,33 +44,41 @@ pub struct PriceChange {
     pub volume_24h: f64,
 }
 
+/// Format a numeric value with a `+` prefix for non-negative values.
+fn format_with_sign(value: f64, decimals: usize) -> String {
+    if value >= 0.0 {
+        format!("+{value:.decimals$}")
+    } else {
+        format!("{value:.decimals$}")
+    }
+}
+
 impl PriceChange {
     pub fn change_percent_formatted(&self) -> String {
-        if self.change_percent >= 0.0 {
-            format!("+{:.2}%", self.change_percent)
-        } else {
-            format!("{:.2}%", self.change_percent)
-        }
+        format!("{}%", format_with_sign(self.change_percent, 2))
     }
 
     pub fn change_value_formatted(&self) -> String {
-        if self.change_value >= 0.0 {
-            format!("+{:.2}", self.change_value)
-        } else {
-            format!("{:.2}", self.change_value)
-        }
+        format_with_sign(self.change_value, 2)
     }
 
-    /// Returns true if this is a perpetual contract (linear or inverse).
-    pub fn is_perpetual(&self) -> bool {
-        matches!(self.category.as_str(), "linear" | "inverse")
+    /// Returns true if this is a derivative contract (perpetual or futures).
+    /// Spot and other non-derivative contract types return false.
+    pub fn is_derivative(&self) -> bool {
+        matches!(
+            self.contract_type,
+            ContractType::LinearPerpetual
+                | ContractType::LinearFutures
+                | ContractType::InversePerpetual
+                | ContractType::InverseFutures
+        )
     }
 
     /// Compute volume in USDT terms.
-    /// For perpetuals (linear/inverse), volume is in contracts so multiply by price.
+    /// For derivatives (linear/inverse), volume is in contracts so multiply by price.
     /// For spot, volume is already in quote currency (USDT).
     pub fn volume_usdt(&self) -> f64 {
-        if self.is_perpetual() {
+        if self.is_derivative() {
             self.current_price * self.volume_24h
         } else {
             self.volume_24h

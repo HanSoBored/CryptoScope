@@ -100,7 +100,7 @@ fn print_sample_symbols(symbols: &[Symbol]) {
 ///
 /// Returns symbols whose name contains the search term.
 /// Returns all symbols if the search term is empty.
-pub fn by_search(symbols: &[Symbol], search_term: &str) -> Vec<Symbol> {
+fn by_search(symbols: &[Symbol], search_term: &str) -> Vec<Symbol> {
     if search_term.is_empty() {
         return symbols.to_vec();
     }
