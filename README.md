@@ -168,7 +168,7 @@ The TUI is built with a modular architecture:
 
 ### TUI Output
 
-![TUI](docs/image/TUI.jng)
+![TUI](docs/image/TUI.jpg)
 
 The TUI features:
 - **Multi-View Navigation** — Switch between Symbol List (`l`), Screener (`s`), and Stats Dashboard (`Tab`)
