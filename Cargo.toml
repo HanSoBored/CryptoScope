@@ -34,7 +34,7 @@ async-trait = "0.1"
 terminal_size = "0.4"
 
 # TUI framework
-ratatui = "0.29"
+ratatui = "0.30"
 crossterm = "0.29"
 unicode-width = "0.2"
 
