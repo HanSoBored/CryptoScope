@@ -31,7 +31,7 @@ pub fn render(frame: &mut Frame, area: Rect, state: &AppState) {
 }
 
 fn render_total_panel(frame: &mut Frame, area: Rect, state: &AppState) {
-    let total = state.filtered.len();
+    let total = state.symbol_list.filtered_len();
     let loading_indicator = if state.loading { " (loading...)" } else { "" };
 
     let lines = vec![Line::from(vec![Span::styled(
@@ -41,7 +41,7 @@ fn render_total_panel(frame: &mut Frame, area: Rect, state: &AppState) {
             .add_modifier(Modifier::BOLD),
     )])];
 
-    let paragraph = Paragraph::new(lines).block(theme::themed_block(" Overview "));
+    let paragraph = Paragraph::new(lines).block(theme::themed_block(" Overview"));
     frame.render_widget(paragraph, area);
 }
 
@@ -53,7 +53,7 @@ fn render_category_panel(frame: &mut Frame, area: Rect, state: &AppState) {
             .flat_map(|stats| stats.by_category.iter().map(|(k, v)| (k.clone(), *v))),
     );
 
-    render_stat_panel(" By Category ", &items, 12, frame, area);
+    render_stat_panel("  By Category", &items, 12, frame, area);
 }
 
 fn render_contract_panel(frame: &mut Frame, area: Rect, state: &AppState) {
@@ -64,7 +64,7 @@ fn render_contract_panel(frame: &mut Frame, area: Rect, state: &AppState) {
             .flat_map(|stats| stats.by_contract_type.iter().map(|(k, v)| (k.clone(), *v))),
     );
 
-    render_stat_panel(" By Contract ", &items, 20, frame, area);
+    render_stat_panel("  By Contract", &items, 20, frame, area);
 }
 
 /// Collect and sort stat items by count descending.
