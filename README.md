@@ -1,8 +1,8 @@
 # CryptoScope 🔍
 
-> Multi-exchange crypto symbols intelligence tool
+> Multi-exchange crypto intelligence tool
 
-Fetch and analyze perpetual/derivative symbols from crypto exchanges with a clean, modular TUI interface.
+Fetch and analyze perpetual/derivative from crypto exchanges with a clean, modular TUI interface.
 
 ---
 
@@ -20,11 +20,11 @@ Fetch and analyze perpetual/derivative symbols from crypto exchanges with a clea
 - ✅ Two Modes — Ticker mode (fast) and K-line mode (accurate)
 - ✅ Filtering — Filter by min change %, min volume, symbol search, top N
 - ✅ Color Output — Green for gains, red for lossers
-- ✅ **Multi-View TUI** — Symbol List, Screener, and Stats Dashboard views
-- ✅ **Contract Type Filtering** — Filter by Linear/Inverse Perpetual/Futures (keys `1`-`4`)
-- ✅ **Screener Table** — Sortable table with Change%, Volume, and Symbol columns
-- ✅ **Mouse Support** — Click rows, scrollbar, and header tabs for navigation
-- ✅ **Popup Messages** — Auto-dismissing status/error notifications (5s or any key)
+- ✅ Multi-View TUI — Symbol List, Screener, and Stats Dashboard views
+- ✅ Contract Type Filtering — Filter by Linear/Inverse Perpetual/Futures (keys `1`-`4`)
+- ✅ Screener Table — Sortable table with Change%, Volume, and Symbol columns
+- ✅ Mouse Support — Click rows, scrollbar, and header tabs for navigation
+- ✅ Popup Messages — Auto-dismissing status/error notifications (5s or any key)
 
 ## Installation
 
@@ -168,7 +168,7 @@ The TUI is built with a modular architecture:
 
 ### TUI Output
 
-![TUI](docs/image/TUI.png)
+![TUI](docs/image/TUI.jng)
 
 The TUI features:
 - **Multi-View Navigation** — Switch between Symbol List (`l`), Screener (`s`), and Stats Dashboard (`Tab`)

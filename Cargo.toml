@@ -1,6 +1,6 @@
 [package]
 name = "cryptoscope"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2024"
 description = "Multi-exchange crypto symbols intelligence tool"
 authors = ["CryptoScope Team"]
