@@ -39,7 +39,7 @@ crossterm = "0.29"
 unicode-width = "0.2"
 
 # Database
-rusqlite = { version = "0.31", features = ["bundled"] }
+rusqlite = { version = "0.39", features = ["bundled"] }
 
 # Date/time handling
 chrono = { version = "0.4", features = ["serde"] }
