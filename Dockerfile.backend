@@ -1,6 +1,6 @@
 # CryptoScope Backend - Multi-stage Docker Build
 # Stage 1: Build with all dependencies
-FROM rust:1.85-slim AS builder
+FROM rust:1.88-slim AS builder
 
 WORKDIR /app
 
