@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useStitch, type ThemeName } from '@/lib/stitch';
+import { useStitch } from '@/lib/stitch';
 import { StitchCard, StitchCardHeader, StitchCardContent } from '@/components/stitch';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Save, RefreshCw, LayoutGrid, Check } from 'lucide-react';
+import { RefreshCw, LayoutGrid, Check } from 'lucide-react';
 import { useSaveIndicator } from '@/hooks/useSaveIndicator';
 import { ThemePreview, APIKeyForm, SecurityBanner } from '@/components/settings';
 import { useSettingsStorage } from '@/hooks/use-settings-storage';
@@ -216,10 +216,10 @@ export default function SettingsPage() {
             <RefreshCw className="mt-0.5 h-5 w-5 text-muted-foreground" />
             <div className="space-y-1 text-sm text-muted-foreground">
               <div className="font-medium text-foreground">Settings are saved locally</div>
-              <p>
-                All your settings are stored in your browser's local storage.
-                They will persist across sessions but won't sync between devices.
-              </p>
+               <p>
+                 All your settings are stored in your browser&apos;s local storage.
+                 They will persist across sessions but won&apos;t sync between devices.
+               </p>
             </div>
           </div>
         </StitchCardContent>

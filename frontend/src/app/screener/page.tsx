@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { RefreshCw, Filter, Activity } from 'lucide-react';
 import { StatusPip, StitchCard, StitchCardHeader, StitchCardContent } from '@/components/stitch';
-import type { ScreenerItem } from '@/lib/api';
+
 import { cn } from '@/lib/utils';
 import { getSortedData } from '@/lib/sort';
 import { useSortState } from '@/hooks/useSortState';

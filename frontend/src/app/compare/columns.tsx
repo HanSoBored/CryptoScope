@@ -16,10 +16,10 @@ const statusVariantMap: Record<string, 'connected' | 'connecting' | 'disconnecte
 
 /**
  * Create column definitions for the comparison data table.
- * @param arbitrageThreshold - Price diff % threshold for highlighting arbitrage opportunities
+ * @param _arbitrageThreshold - Price diff % threshold for highlighting arbitrage opportunities
  * @returns Array of column definitions
  */
-export function createComparisonColumns(arbitrageThreshold: number = 0.1): Column<ComparisonRow>[] {
+export function createComparisonColumns(_arbitrageThreshold: number = 0.1): Column<ComparisonRow>[] {
   return [
     {
       key: 'symbol',

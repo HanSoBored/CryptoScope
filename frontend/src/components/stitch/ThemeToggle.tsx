@@ -13,16 +13,13 @@ export function ThemeToggle() {
   const [isMounted, setIsMounted] = useState(false)
   
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true)
   }, [])
   
   // Render placeholder until mounted to avoid SSR/client mismatch
   if (!isMounted) {
-    return (
-      <Button variant="ghost" size="sm" disabled className="gap-2">
-        <span className="sr-only">Loading theme...</span>
-      </Button>
-    )
+    return null
   }
 
   return (

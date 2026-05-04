@@ -1,7 +1,6 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { StatusPip } from '@/components/stitch/StatusPip';
 import { getStatusLabel } from '@/lib/status';
 import Link from 'next/link';

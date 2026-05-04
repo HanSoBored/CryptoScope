@@ -11,7 +11,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { ArrowUpDown } from 'lucide-react';
-import { Button } from './ui/button';
 
 export interface Column<T> {
   key: string;

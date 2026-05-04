@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Key, Save, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,13 +36,14 @@ export function APIKeyDialog({
   const [apiSecret, setApiSecret] = useState(existingKeys.apiSecret);
   const [passphrase, setPassphrase] = useState(existingKeys.passphrase || '');
 
-  useEffect(() => {
-    if (open) {
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
       setApiKey(existingKeys.apiKey);
       setApiSecret(existingKeys.apiSecret);
       setPassphrase(existingKeys.passphrase || '');
     }
-  }, [open, existingKeys]);
+    onOpenChange(newOpen);
+  };
 
   const handleSave = () => {
     onSave({ apiKey, apiSecret, passphrase: exchange === 'OKX' ? passphrase : undefined });
@@ -55,7 +56,7 @@ export function APIKeyDialog({
     (exchange === 'OKX' && passphrase !== (existingKeys.passphrase || ''));
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -93,7 +94,7 @@ export function APIKeyDialog({
             <div className="flex items-start gap-2">
               <Shield className="mt-0.5 h-4 w-4 text-emerald-500" />
               <div className="text-xs text-emerald-200">
-                <strong>Encrypted Storage:</strong> API keys are encrypted with AES-256-GCM and stored in your browser's localStorage.
+                <strong>Encrypted Storage:</strong> API keys are encrypted with AES-256-GCM and stored in your browser&apos;s localStorage.
                 The encryption key is stored in sessionStorage and cleared when you close the tab.
                 For best security, still use <strong>read-only permissions only</strong> (no trading or withdrawals).
               </div>

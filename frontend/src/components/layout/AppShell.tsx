@@ -7,11 +7,8 @@ import { useState, type ReactNode } from 'react';
 import {
   Sheet,
   SheetContent,
-  SheetTrigger,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
 
 interface AppShellProps {
   children: ReactNode;
