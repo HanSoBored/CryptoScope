@@ -5,9 +5,10 @@ import { useStats } from '@/hooks/useStats';
 import { StatCard } from '@/components/StatCard';
 import { CategoryFilter, type CategoryValue } from '@/components/CategoryFilter';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { StitchCard, StitchCardHeader, StitchCardContent, StatusPip } from '@/components/stitch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { CardTitle, CardDescription } from '@/components/ui/card';
 import { RefreshCw, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -55,33 +56,35 @@ export default function StatsPage() {
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Category Filter</CardTitle>
-          <CardDescription>
-            Filter statistics by contract category
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <StitchCard>
+        <StitchCardHeader showBorder={false}>
+          <div>
+            <CardTitle className="text-sm">Category Filter</CardTitle>
+            <CardDescription className="text-xs">
+              Filter statistics by contract category
+            </CardDescription>
+          </div>
+        </StitchCardHeader>
+        <StitchCardContent variant="dense">
           <CategoryFilter
             value={category}
             onChange={setCategory}
             variant="tabs"
           />
-        </CardContent>
-      </Card>
+        </StitchCardContent>
+      </StitchCard>
 
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
+            <StitchCard key={i}>
+              <StitchCardHeader showBorder={false}>
                 <div className="h-4 w-24 bg-muted animate-pulse rounded" />
-              </CardHeader>
-              <CardContent>
+              </StitchCardHeader>
+              <StitchCardContent>
                 <div className="h-8 w-32 bg-muted animate-pulse rounded" />
-              </CardContent>
-            </Card>
+              </StitchCardContent>
+            </StitchCard>
           ))}
         </div>
       ) : stats ? (
@@ -96,14 +99,14 @@ export default function StatsPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Category Breakdown</CardTitle>
-                <CardDescription>
-                  Distribution by category
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+            <StitchCard>
+              <StitchCardHeader>
+                <div className="flex items-center gap-2">
+                  <StatusPip variant={isLoading ? 'connecting' : 'connected'} size="sm" />
+                  <span className="text-sm font-medium">Category Breakdown</span>
+                </div>
+              </StitchCardHeader>
+              <StitchCardContent>
                 <div className="space-y-3">
                   {stats.by_category.map(({ category, count }) => (
                     <div key={category} className="flex items-center justify-between">
@@ -126,17 +129,17 @@ export default function StatsPage() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </StitchCardContent>
+            </StitchCard>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Contract Type Breakdown</CardTitle>
-                <CardDescription>
-                  Distribution by contract type
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+            <StitchCard>
+              <StitchCardHeader>
+                <div className="flex items-center gap-2">
+                  <StatusPip variant={isLoading ? 'connecting' : 'connected'} size="sm" />
+                  <span className="text-sm font-medium">Contract Type Breakdown</span>
+                </div>
+              </StitchCardHeader>
+              <StitchCardContent>
                 <div className="space-y-3">
                   {stats.by_contract_type.map(({ category, count }) => (
                     <div key={category} className="flex items-center justify-between">
@@ -159,8 +162,8 @@ export default function StatsPage() {
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </StitchCardContent>
+            </StitchCard>
           </div>
         </>
       ) : (
