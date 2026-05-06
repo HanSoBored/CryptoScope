@@ -52,7 +52,7 @@ ts-rs = "10"
 jsonwebtoken = { version = "10.3", features = ["aws_lc_rs"] }
 axum-extra = { version = "0.10", features = ["typed-header"] }
 argon2 = "0.5"
-rand = "0.8"
+rand = "0.9"
 
 # Rate Limiting
 tower_governor = { version = "0.8", features = ["axum", "tracing"] }
