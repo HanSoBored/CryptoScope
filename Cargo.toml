@@ -46,7 +46,7 @@ tower-http = { version = "0.6", features = ["cors", "trace"] }
 utoipa = { version = "5", features = ["axum_extras"] }
 utoipa-axum = "0.2"
 utoipa-swagger-ui = { version = "9", features = ["axum"] }
-ts-rs = "10"
+ts-rs = "12"
 
 # Authentication
 jsonwebtoken = { version = "10.3", features = ["aws_lc_rs"] }
