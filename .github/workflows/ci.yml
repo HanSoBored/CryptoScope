@@ -8,7 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUST_VERSION: "1.85"
+  RUST_VERSION: "1.88"
   NODE_VERSION: "20"
 
 jobs:
@@ -152,7 +152,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.backend
+          file: ./deployment/docker/Dockerfile.backend
           push: false
           tags: cryptoscope-backend:latest
           cache-from: type=gha
@@ -162,7 +162,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.frontend
+          file: ./deployment/docker/Dockerfile.frontend
           push: false
           tags: cryptoscope-frontend:latest
           cache-from: type=gha
@@ -180,10 +180,10 @@ jobs:
 
       - name: Validate docker-compose.yml
         run: |
-          docker compose config --quiet
+          docker compose -f deployment/docker/docker-compose.yml config --quiet
         env:
           DOCKER_COMPOSE_VERSION: "v2.20.0"
 
       - name: Validate docker-compose.dev.yml
         run: |
-          docker compose -f docker-compose.dev.yml config --quiet
+          docker compose -f deployment/docker/docker-compose.dev.yml config --quiet
