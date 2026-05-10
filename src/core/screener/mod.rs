@@ -61,28 +61,17 @@ impl Screener {
 
     /// Refresh open prices if cache is stale.
     ///
-    /// Uses `OpenPriceFetcherShared` which handles date-check, fetch, and save operations
-    /// with internal locking. This eliminates duplication of the fetch-and-save pattern.
+    /// Uses `OpenPriceFetcherShared::maybe_refresh()` which combines the date-check
+    /// and fetch operations into a single method.
     async fn maybe_refresh_open_prices(&mut self) -> Result<()> {
         let exchange = self.exchange.clone();
         let mode = self.mode;
         let categories = self.categories.clone();
         let db = self.db.clone();
 
-        // Check if fetch is needed (acquire lock briefly)
-        let should_fetch = {
-            let fetcher = OpenPriceFetcherShared::new(db.clone(), exchange.clone());
-            fetcher.should_fetch_open_prices()?
-        };
-
-        if !should_fetch {
-            return Ok(());
-        }
-
-        // Fetch and save open prices for each category using centralized logic
         let fetcher = OpenPriceFetcherShared::new(db, exchange);
         for category in &categories {
-            fetcher.fetch_and_save_open_prices(mode, category).await?;
+            fetcher.maybe_refresh(mode, category).await?;
         }
 
         Ok(())

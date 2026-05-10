@@ -111,22 +111,29 @@ async fn fetch_single_kline_with_progress(
 }
 
 /// Shared state for fetcher operations with thread-safe database access.
+///
+/// Note: Uses `std::sync::Mutex` intentionally, not `tokio::sync::Mutex`.
+/// Per Tokio best practices, std::sync::Mutex is preferred when the lock is not
+/// held across `.await` points (which is the case here - locks are short-lived
+/// and only used for database operations that don't involve async I/O).
 pub struct OpenPriceFetcherShared {
     db: Arc<Mutex<Database>>,
     exchange: Arc<dyn Exchange>,
-    fetch_date: String,
-    fetch_timestamp: i64,
 }
 
 impl OpenPriceFetcherShared {
     pub fn new(db: Arc<Mutex<Database>>, exchange: Arc<dyn Exchange>) -> Self {
-        let now = Utc::now();
-        Self {
-            db,
-            exchange,
-            fetch_date: now.format("%Y-%m-%d").to_string(),
-            fetch_timestamp: now.timestamp(),
-        }
+        Self { db, exchange }
+    }
+
+    /// Get the fetch date as YYYY-MM-DD format
+    fn fetch_date(&self) -> String {
+        Utc::now().format("%Y-%m-%d").to_string()
+    }
+
+    /// Get the current Unix timestamp
+    fn fetch_timestamp(&self) -> i64 {
+        Utc::now().timestamp()
     }
 
     /// Check whether open prices need to be fetched.
@@ -135,7 +142,20 @@ impl OpenPriceFetcherShared {
         let stored_date = db.get_stored_date()?;
         match stored_date {
             None => Ok(true),
-            Some(date) => Ok(date != self.fetch_date),
+            Some(date) => Ok(date != self.fetch_date()),
+        }
+    }
+
+    /// Check if refresh is needed and fetch open prices if so.
+    ///
+    /// Combines the check-then-act pattern into a single method for convenience.
+    /// Returns `true` if a refresh was performed, `false` if cache was still valid.
+    pub async fn maybe_refresh(&self, mode: ScreenerMode, category: &str) -> Result<bool> {
+        if self.should_fetch_open_prices()? {
+            self.fetch_and_save_open_prices(mode, category).await?;
+            Ok(true)
+        } else {
+            Ok(false)
         }
     }
 
@@ -196,9 +216,9 @@ impl OpenPriceFetcherShared {
             .map(|(symbol, open_price)| OpenPriceRow {
                 symbol,
                 open_price,
-                fetch_date: self.fetch_date.clone(),
-                fetch_timestamp: self.fetch_timestamp,
-                source: "bybit".to_string(),
+                fetch_date: self.fetch_date(),
+                fetch_timestamp: self.fetch_timestamp(),
+                source: crate::core::exchange::bybit::EXCHANGE_NAME.to_string(),
             })
             .collect();
         db.save_open_prices(rows)
@@ -214,7 +234,7 @@ mod tests {
     #[test]
     fn test_should_fetch_when_no_data() {
         let db = create_test_db();
-        let exchange = Arc::new(BybitClient::new());
+        let exchange = Arc::new(BybitClient::new().unwrap());
         let fetcher = OpenPriceFetcherShared::new(Arc::new(Mutex::new(db)), exchange);
         // No data stored, should fetch
         assert!(fetcher.should_fetch_open_prices().unwrap());
@@ -232,11 +252,11 @@ mod tests {
             open_price: 50000.0,
             fetch_date: yesterday,
             fetch_timestamp: Utc::now().timestamp() - 86400,
-            source: "bybit".to_string(),
+            source: crate::core::exchange::bybit::EXCHANGE_NAME.to_string(),
         };
         db.save_open_prices(vec![row]).unwrap();
 
-        let exchange = Arc::new(BybitClient::new());
+        let exchange = Arc::new(BybitClient::new().unwrap());
         let fetcher = OpenPriceFetcherShared::new(Arc::new(Mutex::new(db)), exchange);
         // Stored date is yesterday, should fetch
         assert!(fetcher.should_fetch_open_prices().unwrap());
@@ -252,11 +272,11 @@ mod tests {
             open_price: 50000.0,
             fetch_date: today,
             fetch_timestamp: Utc::now().timestamp(),
-            source: "bybit".to_string(),
+            source: crate::core::exchange::bybit::EXCHANGE_NAME.to_string(),
         };
         db.save_open_prices(vec![row]).unwrap();
 
-        let exchange = Arc::new(BybitClient::new());
+        let exchange = Arc::new(BybitClient::new().unwrap());
         let fetcher = OpenPriceFetcherShared::new(Arc::new(Mutex::new(db)), exchange);
         // Stored date is today, should NOT fetch
         assert!(!fetcher.should_fetch_open_prices().unwrap());

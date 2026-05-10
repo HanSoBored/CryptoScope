@@ -1,6 +1,7 @@
-//! Screener output formatting (legacy CLI - deprecated).
-
-#![allow(dead_code)]
+//! Screener output formatting utilities.
+//!
+//! Provides filtering, sorting, and formatting functions for price change data.
+//! Note: Some formatting functions are deprecated as CLI formatting is no longer used.
 
 use crate::core::models::PriceChange;
 
@@ -23,6 +24,8 @@ where
 
 /// Display summary statistics for price changes.
 /// Returns a formatted string with statistics.
+#[deprecated(since = "0.2.0", note = "CLI formatting is no longer used. Use API JSON responses instead.")]
+#[allow(dead_code)]
 pub fn format_stats(changes: &[PriceChange]) -> String {
     let total = changes.len();
 
@@ -93,6 +96,8 @@ pub fn apply_filters(
 /// on small ones. These tiers balance readability with column-width constraints.
 ///
 /// Negative prices are formatted with a leading minus sign.
+#[deprecated(since = "0.2.0", note = "CLI formatting is no longer used. Use API JSON responses instead.")]
+#[allow(dead_code)]
 pub fn format_price(price: f64) -> String {
     let sign = if price < 0.0 { "-" } else { "" };
     let abs = price.abs();
@@ -114,6 +119,8 @@ pub fn format_price(price: f64) -> String {
 /// - >= 1M: `$X.XXM`
 /// - >= 1K: `$X.XXK`
 /// - < 1K: `$X.XX`
+#[deprecated(since = "0.2.0", note = "CLI formatting is no longer used. Use API JSON responses instead.")]
+#[allow(dead_code)]
 pub fn format_volume(volume: f64) -> String {
     if volume >= 1_000_000_000.0 {
         format!("${:.2}B", volume / 1_000_000_000.0)
@@ -139,6 +146,7 @@ pub fn format_volume(volume: f64) -> String {
 }
 
 #[cfg(test)]
+#[allow(deprecated)]
 mod tests {
     use super::*;
 
