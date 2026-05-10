@@ -4,8 +4,8 @@ services:
   # Backend API service (Rust + Axum)
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile.backend
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.backend
     container_name: cryptoscope-backend
     restart: unless-stopped
     ports:
@@ -28,8 +28,8 @@ services:
   # Frontend service (Next.js)
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.frontend
     container_name: cryptoscope-frontend
     restart: unless-stopped
     ports:

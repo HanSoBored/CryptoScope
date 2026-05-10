@@ -5,7 +5,7 @@ version: '3.8'
 services:
   # Backend API service with hot-reload (cargo-watch)
   backend:
-    image: rust:1.80-slim
+    image: rust:1.88-slim
     user: "1000:1000"
     container_name: cryptoscope-backend-dev
     working_dir: /app
@@ -13,7 +13,7 @@ services:
       - "3000:3000"
     volumes:
       # Mount source code for hot-reload
-      - .:/app
+      - ../..:/app
       # Cache cargo dependencies
       - cargo-registry:/usr/local/cargo/registry
       - cargo-git:/usr/local/cargo/git
@@ -39,7 +39,7 @@ services:
       - "3001:3001"
     volumes:
       # Mount source code for hot-reload
-      - ./frontend:/app/frontend
+      - ../../frontend:/app/frontend
       # Cache node_modules
       - node_modules:/app/frontend/node_modules
     environment:
