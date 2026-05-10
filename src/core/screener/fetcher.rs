@@ -52,9 +52,7 @@ where
 
     Err(last_err.unwrap_or_else(|| CryptoScopeError::ApiError {
         code: -1,
-        message: format!(
-            "All {MAX_KLINE_RETRIES} retries exhausted for symbol '{symbol}'"
-        ),
+        message: format!("All {MAX_KLINE_RETRIES} retries exhausted for symbol '{symbol}'"),
     }))
 }
 
