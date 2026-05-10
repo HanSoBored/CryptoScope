@@ -28,7 +28,13 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: "1.88"
           targets: ${{ matrix.target }}
+          components: rust-std
+
+      - name: Add target (macOS)
+        if: contains(matrix.target, 'apple-darwin')
+        run: rustup target add ${{ matrix.target }}
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
