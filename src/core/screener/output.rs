@@ -24,7 +24,10 @@ where
 
 /// Display summary statistics for price changes.
 /// Returns a formatted string with statistics.
-#[deprecated(since = "0.2.0", note = "CLI formatting is no longer used. Use API JSON responses instead.")]
+#[deprecated(
+    since = "0.2.0",
+    note = "CLI formatting is no longer used. Use API JSON responses instead."
+)]
 #[allow(dead_code)]
 pub fn format_stats(changes: &[PriceChange]) -> String {
     let total = changes.len();
@@ -96,7 +99,10 @@ pub fn apply_filters(
 /// on small ones. These tiers balance readability with column-width constraints.
 ///
 /// Negative prices are formatted with a leading minus sign.
-#[deprecated(since = "0.2.0", note = "CLI formatting is no longer used. Use API JSON responses instead.")]
+#[deprecated(
+    since = "0.2.0",
+    note = "CLI formatting is no longer used. Use API JSON responses instead."
+)]
 #[allow(dead_code)]
 pub fn format_price(price: f64) -> String {
     let sign = if price < 0.0 { "-" } else { "" };
@@ -119,7 +125,10 @@ pub fn format_price(price: f64) -> String {
 /// - >= 1M: `$X.XXM`
 /// - >= 1K: `$X.XXK`
 /// - < 1K: `$X.XX`
-#[deprecated(since = "0.2.0", note = "CLI formatting is no longer used. Use API JSON responses instead.")]
+#[deprecated(
+    since = "0.2.0",
+    note = "CLI formatting is no longer used. Use API JSON responses instead."
+)]
 #[allow(dead_code)]
 pub fn format_volume(volume: f64) -> String {
     if volume >= 1_000_000_000.0 {
