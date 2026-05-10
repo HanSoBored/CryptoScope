@@ -1,11 +1,11 @@
-use super::bybit::BybitClient;
+use super::bybit::{BybitClient, EXCHANGE_NAME};
 use super::exchange_trait::Exchange;
 use crate::core::error::{CryptoScopeError, Result};
 
 /// Create an exchange client by name
 pub fn create_exchange(name: &str) -> Result<Box<dyn Exchange>> {
     match name.to_lowercase().as_str() {
-        "bybit" => Ok(Box::new(BybitClient::new())),
+        "bybit" => Ok(Box::new(BybitClient::new()?)),
         _ => Err(CryptoScopeError::UnknownExchange(name.to_string())),
     }
 }
@@ -13,7 +13,7 @@ pub fn create_exchange(name: &str) -> Result<Box<dyn Exchange>> {
 /// Get list of supported exchanges
 #[allow(dead_code)]
 pub fn get_supported_exchanges() -> &'static [&'static str] {
-    &["bybit"]
+    &[EXCHANGE_NAME]
 }
 
 #[cfg(test)]

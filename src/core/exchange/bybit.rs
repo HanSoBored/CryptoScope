@@ -1,14 +1,19 @@
 use async_trait::async_trait;
 use reqwest::Client;
 use tracing::{debug, info, warn};
+use url::Url;
 
 use super::exchange_trait::Exchange;
 use crate::core::error::{CryptoScopeError, Result};
+use crate::core::http::build_http_client;
 use crate::core::models::{
     BybitApiResponse, DailyKline, Symbol, Ticker,
     response::{KlineApiResponse, TickerApiResponse},
 };
 use crate::core::utils::parse_f64;
+
+/// Exchange name constant for consistent usage across the codebase
+pub const EXCHANGE_NAME: &str = "bybit";
 
 const BYBIT_BASE_URL: &str = "https://api.bybit.com";
 const INSTRUMENTS_ENDPOINT: &str = "/v5/market/instruments-info";
@@ -18,13 +23,6 @@ const KLINE_ENDPOINT: &str = "/v5/market/kline";
 // Bybit kline array column indices
 // See: https://bybit-exchange.github.io/docs/v5/market/kline
 const KLINE_OPEN_IDX: usize = 1;
-
-fn build_kline_url(base_url: &str, symbol: &str, category: &str) -> String {
-    format!(
-        "{}{}?category={}&symbol={}&interval=D&limit=1",
-        base_url, KLINE_ENDPOINT, category, symbol
-    )
-}
 
 fn check_api_response(ret_code: i32, ret_msg: &str) -> Result<()> {
     if ret_code != 0 {
@@ -79,34 +77,43 @@ pub struct BybitClient {
 }
 
 impl BybitClient {
-    pub fn new() -> Self {
-        Self {
-            client: Client::new(),
+    pub fn new() -> Result<Self> {
+        Ok(Self {
+            client: build_http_client()?,
             base_url: BYBIT_BASE_URL.to_string(),
-        }
+        })
     }
 
     /// Create a new Bybit client with custom base URL (useful for testing)
     #[allow(dead_code)]
-    pub fn with_base_url(base_url: String) -> Self {
-        Self {
-            client: Client::new(),
+    pub fn with_base_url(base_url: String) -> Result<Self> {
+        Ok(Self {
+            client: build_http_client()?,
             base_url,
-        }
+        })
     }
 
     /// Fetch a single page of instruments
     async fn fetch_page(&self, category: &str, cursor: &str) -> Result<BybitApiResponse> {
-        let mut url = format!("{}{}", self.base_url, INSTRUMENTS_ENDPOINT);
-        url.push_str(&format!("?category={}", category));
+        let mut url =
+            Url::parse(&format!("{}{}", self.base_url, INSTRUMENTS_ENDPOINT)).map_err(|e| {
+                CryptoScopeError::ApiError {
+                    code: -1,
+                    message: format!("Invalid URL: {}", e),
+                }
+            })?;
 
+        url.query_pairs_mut().append_pair("category", category);
         if !cursor.is_empty() {
-            url.push_str(&format!("&cursor={}", cursor));
+            url.query_pairs_mut().append_pair("cursor", cursor);
         }
 
-        debug!("Fetching: {}", url);
+        debug!("Fetching instruments: {}", url);
 
-        let response = self.client.get(&url).send().await?;
+        let response = self.client.get(url.as_str()).send().await?;
+
+        let response = response.error_for_status()?;
+
         let api_response: BybitApiResponse = response.json().await?;
 
         check_api_response(api_response.ret_code, &api_response.ret_msg)?;
@@ -140,7 +147,7 @@ impl BybitClient {
 #[async_trait]
 impl Exchange for BybitClient {
     fn name(&self) -> &'static str {
-        "bybit"
+        EXCHANGE_NAME
     }
 
     async fn fetch_instruments(&self, category: &str) -> Result<Vec<Symbol>> {
@@ -181,13 +188,19 @@ impl Exchange for BybitClient {
     async fn fetch_tickers(&self, category: &str) -> Result<Vec<Ticker>> {
         info!("Fetching tickers for category '{}' from Bybit...", category);
 
-        let url = format!(
-            "{}{}?category={}",
-            self.base_url, TICKERS_ENDPOINT, category
-        );
-        debug!("Fetching: {}", url);
+        let mut url =
+            Url::parse(&format!("{}{}", self.base_url, TICKERS_ENDPOINT)).map_err(|e| {
+                CryptoScopeError::ApiError {
+                    code: -1,
+                    message: format!("Invalid URL: {}", e),
+                }
+            })?;
+        url.query_pairs_mut().append_pair("category", category);
 
-        let response = self.client.get(&url).send().await?;
+        debug!("Fetching tickers: {}", url);
+
+        let response = self.client.get(url.as_str()).send().await?;
+        let response = response.error_for_status()?;
         let api_response: TickerApiResponse = response.json().await?;
 
         check_api_response(api_response.ret_code, &api_response.ret_msg)?;
@@ -213,10 +226,22 @@ impl Exchange for BybitClient {
             symbol, category
         );
 
-        let url = build_kline_url(&self.base_url, symbol, category);
+        let mut url = Url::parse(&format!("{}{}", self.base_url, KLINE_ENDPOINT)).map_err(|e| {
+            CryptoScopeError::ApiError {
+                code: -1,
+                message: format!("Invalid URL: {}", e),
+            }
+        })?;
+        url.query_pairs_mut()
+            .append_pair("category", category)
+            .append_pair("symbol", symbol)
+            .append_pair("interval", "D")
+            .append_pair("limit", "1");
+
         debug!("Kline fetch URL: {}", url);
 
-        let response = self.client.get(&url).send().await?;
+        let response = self.client.get(url.as_str()).send().await?;
+        let response = response.error_for_status()?;
         let api_response: KlineApiResponse = response.json().await?;
 
         check_api_response(api_response.ret_code, &api_response.ret_msg)?;
@@ -229,7 +254,12 @@ impl Exchange for BybitClient {
 
 impl Default for BybitClient {
     fn default() -> Self {
-        Self::new()
+        // NOTE: This fallback uses standard timeouts via build_http_client().
+        // Prefer BybitClient::new() for production use (handles errors explicitly).
+        Self {
+            client: build_http_client().unwrap_or_else(|_| reqwest::Client::default()),
+            base_url: BYBIT_BASE_URL.to_string(),
+        }
     }
 }
 
@@ -239,8 +269,8 @@ mod tests {
 
     #[test]
     fn test_bybit_client_creation() {
-        let client = BybitClient::new();
-        assert_eq!(client.name(), "bybit");
+        let client = BybitClient::new().unwrap();
+        assert_eq!(client.name(), EXCHANGE_NAME);
     }
 
     #[test]
