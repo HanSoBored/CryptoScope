@@ -264,7 +264,7 @@ pub async fn run() -> anyhow::Result<()> {
     let service = router
         .serve(transport)
         .await
-        .map_err(|e| anyhow::anyhow!("Failed to start MCP server: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to start MCP server: {e}"))?;
 
     // Keep server running - waiting() blocks indefinitely
     service.waiting().await?;

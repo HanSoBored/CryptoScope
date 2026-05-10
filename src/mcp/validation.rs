@@ -14,8 +14,7 @@ pub fn validate_param(
     if !config.is_param_safe_with_type(param, param_type) {
         return Err(rmcp::ErrorData::invalid_params(
             format!(
-                "Invalid parameter '{}': does not match allowed pattern for type '{}'",
-                param, param_type
+                "Invalid parameter '{param}': does not match allowed pattern for type '{param_type}'"
             ),
             None,
         ));
@@ -27,7 +26,7 @@ pub fn validate_param(
 pub fn validate_screener_params(params: &ScreenerParams) -> Result<(), rmcp::ErrorData> {
     // Validate top: must be 1-1000
     if let Some(top) = params.top {
-        if top < 1 || top > 1000 {
+        if !(1..=1000).contains(&top) {
             return Err(rmcp::ErrorData::invalid_params(
                 "Parameter 'top' must be between 1 and 1000".to_string(),
                 None,
@@ -43,7 +42,7 @@ pub fn validate_screener_params(params: &ScreenerParams) -> Result<(), rmcp::Err
                 None,
             ));
         }
-        if min_change < -100.0 || min_change > 100.0 {
+        if !(-100.0..=100.0).contains(&min_change) {
             return Err(rmcp::ErrorData::invalid_params(
                 "Parameter 'min_change' must be between -100 and 100".to_string(),
                 None,

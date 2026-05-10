@@ -43,7 +43,7 @@ pub async fn refresh_cache(
     // Clear the cache
     db.clear_price_data().map_err(|e| {
         error!("Failed to clear price data: {}", e);
-        AppError::internal_error(format!("Failed to clear cache: {}", e))
+        AppError::internal_error(format!("Failed to clear cache: {e}"))
     })?;
 
     info!("Cache refreshed: cleared {} entries", count);

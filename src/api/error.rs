@@ -40,20 +40,20 @@ impl From<CryptoScopeError> for AppError {
     fn from(err: CryptoScopeError) -> Self {
         match err {
             CryptoScopeError::UnknownExchange(name) => {
-                AppError::bad_request(format!("Unknown exchange: {}", name))
+                AppError::bad_request(format!("Unknown exchange: {name}"))
             }
             CryptoScopeError::HttpError(e) => {
-                AppError::bad_gateway(format!("HTTP request failed: {}", e))
+                AppError::bad_gateway(format!("HTTP request failed: {e}"))
             }
             CryptoScopeError::ParseError(e) => {
-                AppError::internal_error(format!("JSON parsing failed: {}", e))
+                AppError::internal_error(format!("JSON parsing failed: {e}"))
             }
             CryptoScopeError::DbError(e) => {
-                AppError::internal_error(format!("Database error: {}", e))
+                AppError::internal_error(format!("Database error: {e}"))
             }
             CryptoScopeError::DbInternal(msg) => AppError::internal_error(msg),
             CryptoScopeError::ApiError { code, message } => {
-                AppError::bad_gateway(format!("API error code {}: {}", code, message))
+                AppError::bad_gateway(format!("API error code {code}: {message}"))
             }
         }
     }

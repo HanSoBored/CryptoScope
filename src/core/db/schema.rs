@@ -53,8 +53,7 @@ fn run_migrations(conn: &Connection, from_version: i64, to_version: i64) -> Resu
         match version {
             1 => {
                 conn.execute_batch(&format!(
-                    "{}; {}",
-                    SQL_CREATE_DAILY_OPEN_PRICES, SQL_IDX_FETCH_DATE
+                    "{SQL_CREATE_DAILY_OPEN_PRICES}; {SQL_IDX_FETCH_DATE}"
                 ))?;
             }
             _ => {

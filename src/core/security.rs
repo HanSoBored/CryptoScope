@@ -73,13 +73,13 @@ impl SecurityConfig {
         // Canonicalize the base directory first
         let canonical_base = base
             .canonicalize()
-            .map_err(|e| format!("Failed to canonicalize base directory: {}", e))?;
+            .map_err(|e| format!("Failed to canonicalize base directory: {e}"))?;
 
         // Join and canonicalize the target path
         let target = base.join(path);
         let canonical_target = target
             .canonicalize()
-            .map_err(|e| format!("Failed to canonicalize target path: {}", e))?;
+            .map_err(|e| format!("Failed to canonicalize target path: {e}"))?;
 
         // Ensure the resolved path starts with the base directory
         if canonical_target.starts_with(&canonical_base) {

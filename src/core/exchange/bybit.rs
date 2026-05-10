@@ -53,13 +53,13 @@ fn parse_kline_field(data: &[String], idx: usize, field_name: &str, symbol: &str
 fn parse_kline_fields(data: &[Vec<String>], symbol: &str) -> Result<DailyKline> {
     let kline_data = data.first().ok_or_else(|| CryptoScopeError::ApiError {
         code: -1,
-        message: format!("No k-line data found for symbol '{}'", symbol),
+        message: format!("No k-line data found for symbol '{symbol}'"),
     })?;
 
     if kline_data.len() < 6 {
         return Err(CryptoScopeError::ApiError {
             code: -1,
-            message: format!("Invalid k-line data format for symbol '{}'", symbol),
+            message: format!("Invalid k-line data format for symbol '{symbol}'"),
         });
     }
 
@@ -99,7 +99,7 @@ impl BybitClient {
             Url::parse(&format!("{}{}", self.base_url, INSTRUMENTS_ENDPOINT)).map_err(|e| {
                 CryptoScopeError::ApiError {
                     code: -1,
-                    message: format!("Invalid URL: {}", e),
+                    message: format!("Invalid URL: {e}"),
                 }
             })?;
 
@@ -192,7 +192,7 @@ impl Exchange for BybitClient {
             Url::parse(&format!("{}{}", self.base_url, TICKERS_ENDPOINT)).map_err(|e| {
                 CryptoScopeError::ApiError {
                     code: -1,
-                    message: format!("Invalid URL: {}", e),
+                    message: format!("Invalid URL: {e}"),
                 }
             })?;
         url.query_pairs_mut().append_pair("category", category);
@@ -229,7 +229,7 @@ impl Exchange for BybitClient {
         let mut url = Url::parse(&format!("{}{}", self.base_url, KLINE_ENDPOINT)).map_err(|e| {
             CryptoScopeError::ApiError {
                 code: -1,
-                message: format!("Invalid URL: {}", e),
+                message: format!("Invalid URL: {e}"),
             }
         })?;
         url.query_pairs_mut()
