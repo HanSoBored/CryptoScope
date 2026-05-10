@@ -9,7 +9,6 @@ import {
   LayoutDashboard,
   Table,
   BarChart3,
-  GitCompare,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -25,7 +24,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Screener', href: '/screener', icon: LayoutDashboard, priority: true },
   { label: 'Symbols', href: '/symbols', icon: Table, priority: true },
   { label: 'Stats', href: '/stats', icon: BarChart3, priority: true },
-  { label: 'Compare', href: '/compare', icon: GitCompare, priority: true },
   { label: 'Settings', href: '/settings', icon: Settings, priority: true },
 ];
 
