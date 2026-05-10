@@ -18,7 +18,7 @@ pub fn get_database_path() -> Result<PathBuf> {
     // Check for DATABASE_PATH environment variable
     if let Ok(db_path) = std::env::var("DATABASE_PATH") {
         return validate_and_normalize_path(&db_path)
-            .map_err(|e| CryptoScopeError::DbInternal(format!("Path validation failed: {}", e)));
+            .map_err(|e| CryptoScopeError::DbInternal(format!("Path validation failed: {e}")));
     }
 
     // Fall back to standard location
@@ -28,7 +28,7 @@ pub fn get_database_path() -> Result<PathBuf> {
         .join("cryptoscope");
 
     std::fs::create_dir_all(&base_dir).map_err(|e| {
-        CryptoScopeError::DbInternal(format!("Failed to create database directory: {}", e))
+        CryptoScopeError::DbInternal(format!("Failed to create database directory: {e}"))
     })?;
 
     Ok(base_dir.join("data.db"))

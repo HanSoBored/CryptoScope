@@ -61,7 +61,7 @@ pub fn create_test_open_price_row(symbol: &str) -> OpenPriceRow {
         open_price: 50000.0,
         fetch_date: "2026-04-25".to_string(),
         fetch_timestamp: 1745539200,
-        source: "bybit".to_string(),
+        source: super::exchange::bybit::EXCHANGE_NAME.to_string(),
     }
 }
 

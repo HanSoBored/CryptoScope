@@ -138,7 +138,7 @@ mod tests {
             open_price: 3000.0,
             fetch_date: "2026-04-24".to_string(),
             fetch_timestamp: 1745452800,
-            source: "bybit".to_string(),
+            source: crate::core::exchange::bybit::EXCHANGE_NAME.to_string(),
         };
         db.save_open_prices(vec![row1]).unwrap();
 
@@ -148,7 +148,7 @@ mod tests {
             open_price: 3100.0,
             fetch_date: "2026-04-25".to_string(),
             fetch_timestamp: 1745539200,
-            source: "bybit".to_string(),
+            source: crate::core::exchange::bybit::EXCHANGE_NAME.to_string(),
         };
         db.save_open_prices(vec![row2]).unwrap();
 
@@ -167,7 +167,7 @@ mod tests {
                 open_price: 3000.0,
                 fetch_date: "2026-04-25".to_string(),
                 fetch_timestamp: 1745539200,
-                source: "bybit".to_string(),
+                source: crate::core::exchange::bybit::EXCHANGE_NAME.to_string(),
             },
         ];
         db.save_open_prices(rows).unwrap();

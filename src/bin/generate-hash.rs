@@ -53,16 +53,16 @@ fn main() -> anyhow::Result<()> {
     // Hash the password
     let hash = argon2
         .hash_password(password.as_bytes(), &salt)
-        .map_err(|e| anyhow::anyhow!("Failed to hash password: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to hash password: {e}"))?;
 
     // Output the hash in PHC format
-    println!("{}", hash);
+    println!("{hash}");
 
     eprintln!();
     eprintln!("✅ Password hash generated successfully!");
     eprintln!();
     eprintln!("Add this to your .env file:");
-    eprintln!("ADMIN_PASS_HASH={}", hash);
+    eprintln!("ADMIN_PASS_HASH={hash}");
     eprintln!();
     eprintln!("⚠️  Store this hash securely. It cannot be reversed to recover the password.");
 

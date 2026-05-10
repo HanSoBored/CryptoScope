@@ -29,9 +29,9 @@ impl std::fmt::Display for PathError {
             PathError::EmptyPath => write!(f, "Path cannot be empty"),
             PathError::NullBytes => write!(f, "Path contains null bytes"),
             PathError::NotInAllowedDirectory(dirs) => {
-                write!(f, "Path must be in an allowed directory: {:?}", dirs)
+                write!(f, "Path must be in an allowed directory: {dirs:?}")
             }
-            PathError::IoError(e) => write!(f, "IO error: {}", e),
+            PathError::IoError(e) => write!(f, "IO error: {e}"),
         }
     }
 }

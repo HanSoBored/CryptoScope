@@ -15,6 +15,7 @@ use axum::{
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
 use time::{Duration, OffsetDateTime};
+use validator::Validate;
 
 use crate::api::AppState;
 
@@ -81,10 +82,10 @@ pub fn load_admin_credentials() -> Result<AdminCredentials, String> {
 /// Build JWT validation configuration with explicit security settings
 fn build_validation() -> Validation {
     let mut validation = Validation::new(Algorithm::HS256);
-    validation.set_required_spec_claims(&["exp", "iat"]);
-    validation.validate_nbf = true;
+    validation.set_required_spec_claims(&["exp", "iat", "nbf"]);
     validation.leeway = 60;
     validation.reject_tokens_expiring_in_less_than = 30;
+    validation.validate_nbf = true;
     validation
 }
 
@@ -97,6 +98,8 @@ pub struct Claims {
     pub exp: i64,
     /// Issued at (UTC timestamp)
     pub iat: i64,
+    /// Not before (UTC timestamp) - token is invalid before this time
+    pub nbf: i64,
     /// User roles for authorization
     pub roles: Vec<String>,
 }
@@ -138,6 +141,7 @@ pub enum AuthError {
     InvalidToken,
     TokenCreation,
     WrongCredentials,
+    ValidationError(String),
 }
 
 impl IntoResponse for AuthError {
@@ -147,7 +151,7 @@ impl IntoResponse for AuthError {
 
         let (status, error_message, include_www_auth) = match self {
             AuthError::MissingCredentials => {
-                (StatusCode::BAD_REQUEST, "Missing credentials", false)
+                (StatusCode::UNAUTHORIZED, "Missing credentials", true)
             }
             AuthError::InvalidToken => (StatusCode::UNAUTHORIZED, "Invalid token", true),
             AuthError::TokenCreation => (
@@ -156,6 +160,9 @@ impl IntoResponse for AuthError {
                 false,
             ),
             AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, "Wrong credentials", true),
+            AuthError::ValidationError(ref msg) => {
+                (StatusCode::UNPROCESSABLE_ENTITY, msg.as_str(), false)
+            }
         };
 
         let body = Json(json!({
@@ -183,11 +190,13 @@ impl IntoResponse for AuthError {
 pub fn generate_token(keys: &Keys, user_id: &str, roles: Vec<String>) -> Result<String, AuthError> {
     let now = OffsetDateTime::now_utc();
     let exp = now + Duration::hours(24); // 24-hour tokens
+    let nbf = now.unix_timestamp();
 
     let claims = Claims {
         sub: user_id.to_string(),
         exp: exp.unix_timestamp(),
         iat: now.unix_timestamp(),
+        nbf,
         roles,
     };
 
@@ -198,9 +207,11 @@ pub fn generate_token(keys: &Keys, user_id: &str, roles: Vec<String>) -> Result<
 }
 
 /// Login request body
-#[derive(Debug, Deserialize, utoipa::ToSchema)]
+#[derive(Debug, Deserialize, Validate, utoipa::ToSchema)]
 pub struct LoginRequest {
+    #[validate(length(min = 1, max = 64))]
     pub username: String,
+    #[validate(length(min = 1, max = 256))]
     pub password: String,
 }
 
@@ -230,10 +241,18 @@ pub async fn login(
     State(state): State<crate::api::AppState>,
     Json(payload): Json<LoginRequest>,
 ) -> Result<Json<LoginResponse>, AuthError> {
-    // Validate input is not empty
-    if payload.username.is_empty() || payload.password.is_empty() {
-        return Err(AuthError::MissingCredentials);
-    }
+    // Validate input using validator
+    payload.validate().map_err(|e| {
+        let errors: Vec<String> = e
+            .field_errors()
+            .iter()
+            .flat_map(|(field, errs)| {
+                errs.iter()
+                    .map(move |err| format!("{}: {}", field, err.code))
+            })
+            .collect();
+        AuthError::ValidationError(errors.join(", "))
+    })?;
 
     // Check username matches
     if payload.username != state.admin_credentials.username {

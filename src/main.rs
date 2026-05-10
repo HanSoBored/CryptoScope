@@ -59,7 +59,7 @@ fn resolve_db_path() -> anyhow::Result<String> {
     let database_path =
         std::env::var("DATABASE_PATH").unwrap_or_else(|_| "./cryptoscope_data".to_string());
     let db_path = core::utils::path::validate_and_normalize_path(&database_path)
-        .map_err(|e| anyhow::anyhow!("Invalid DATABASE_PATH: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Invalid DATABASE_PATH: {e}"))?;
     Ok(db_path.to_string_lossy().to_string())
 }
 
@@ -144,9 +144,9 @@ async fn main() -> anyhow::Result<()> {
 
     // Load JWT keys and admin credentials with proper error handling
     let keys =
-        api::auth::load_keys().map_err(|e| anyhow::anyhow!("Failed to load JWT keys: {}", e))?;
+        api::auth::load_keys().map_err(|e| anyhow::anyhow!("Failed to load JWT keys: {e}"))?;
     let admin_credentials = api::auth::load_admin_credentials()
-        .map_err(|e| anyhow::anyhow!("Failed to load admin credentials: {}", e))?;
+        .map_err(|e| anyhow::anyhow!("Failed to load admin credentials: {e}"))?;
 
     // Create application state
     let state = AppState {
@@ -177,7 +177,7 @@ async fn main() -> anyhow::Result<()> {
     // Start the server with connect info for IP-based rate limiting
     let listener = tokio::net::TcpListener::bind(&addr)
         .await
-        .with_context(|| format!("Failed to bind to {}", addr));
+        .with_context(|| format!("Failed to bind to {addr}"));
 
     axum::serve(
         listener?,

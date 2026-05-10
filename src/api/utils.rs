@@ -16,9 +16,9 @@ use tracing::{error, warn};
 /// Returns an error if connection or schema initialization fails.
 pub fn init_database() -> Result<Database, AppError> {
     let conn = create_connection()
-        .map_err(|e| AppError::internal_error(format!("Failed to create DB connection: {}", e)))?;
+        .map_err(|e| AppError::internal_error(format!("Failed to create DB connection: {e}")))?;
     init_schema(&conn)
-        .map_err(|e| AppError::internal_error(format!("Failed to initialize DB schema: {}", e)))?;
+        .map_err(|e| AppError::internal_error(format!("Failed to initialize DB schema: {e}")))?;
     Ok(Database::new(conn))
 }
 
@@ -29,7 +29,7 @@ pub fn init_database() -> Result<Database, AppError> {
 pub fn resolve_exchange(name: &str) -> Result<Arc<dyn Exchange>, AppError> {
     crate::core::exchange::create_exchange(name)
         .map(Arc::from)
-        .map_err(|e| AppError::bad_request(format!("Unknown exchange: {}", e)))
+        .map_err(|e| AppError::bad_request(format!("Unknown exchange: {e}")))
 }
 
 /// Fetch symbols from exchange, either for a specific category or all categories.
@@ -43,7 +43,7 @@ pub async fn fetch_symbols(
     if let Some(category) = category {
         exchange.fetch_instruments(category).await.map_err(|e| {
             error!("Failed to fetch instruments: {}", e);
-            AppError::internal_error(format!("Failed to fetch symbols: {}", e))
+            AppError::internal_error(format!("Failed to fetch symbols: {e}"))
         })
     } else {
         // Fetch from all standard categories, continuing on errors

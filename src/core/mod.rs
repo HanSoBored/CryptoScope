@@ -6,13 +6,16 @@
 //! - Database operations
 //! - Price screener
 //! - Instrument fetching
+//! - HTTP client utilities
 
 pub mod db;
 pub mod exchange;
 pub mod fetcher;
+pub mod http;
 pub mod models;
 pub mod output;
 pub mod screener;
+pub mod security;
 pub mod utils;
 
 mod error;

@@ -109,7 +109,7 @@ async fn execute_screener(
     let mut screener = Screener::new(db, exchange, mode, categories);
     let mut results = screener.run().await.map_err(|e| {
         error!("Screener execution failed: {}", e);
-        AppError::internal_error(format!("Screener failed: {}", e))
+        AppError::internal_error(format!("Screener failed: {e}"))
     })?;
 
     // Apply filters

@@ -1,7 +1,8 @@
 [package]
 name = "cryptoscope"
-version = "1.0.1"
+version = "1.1.0"
 edition = "2024"
+rust-version = "1.88"
 description = "CryptoScope - Multi-exchange crypto symbols intelligence API"
 authors = ["CryptoScope Team"]
 
@@ -67,3 +68,10 @@ regex = "1.11"
 
 # Environment variables
 dotenvy = "0.15"
+
+# MCP SDK
+rmcp = { version = "0.16.0", features = ["server", "macros", "transport-io"] }
+schemars = "1.2"
+
+# URL encoding for query parameters
+url = "2.5"

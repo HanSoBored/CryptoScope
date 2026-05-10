@@ -1,6 +1,7 @@
-//! Screener output formatting (legacy CLI - deprecated).
-
-#![allow(dead_code)]
+//! Screener output formatting utilities.
+//!
+//! Provides filtering, sorting, and formatting functions for price change data.
+//! Note: Some formatting functions are deprecated as CLI formatting is no longer used.
 
 use crate::core::models::PriceChange;
 
@@ -23,6 +24,11 @@ where
 
 /// Display summary statistics for price changes.
 /// Returns a formatted string with statistics.
+#[deprecated(
+    since = "0.2.0",
+    note = "CLI formatting is no longer used. Use API JSON responses instead."
+)]
+#[allow(dead_code)]
 pub fn format_stats(changes: &[PriceChange]) -> String {
     let total = changes.len();
 
@@ -36,8 +42,7 @@ pub fn format_stats(changes: &[PriceChange]) -> String {
     let (unchanged_count, _) = compute_group_stats(changes, |c| c.change_percent == 0.0);
 
     format!(
-        "Stats:\n  Total: {} symbols\n  Gainers: {} (avg {:.2}%)\n  Losers: {} (avg {:.2}%)\n  Unchanged: {}",
-        total, gainer_count, gainer_avg, loser_count, loser_avg, unchanged_count
+        "Stats:\n  Total: {total} symbols\n  Gainers: {gainer_count} (avg {gainer_avg:.2}%)\n  Losers: {loser_count} (avg {loser_avg:.2}%)\n  Unchanged: {unchanged_count}"
     )
 }
 
@@ -93,17 +98,22 @@ pub fn apply_filters(
 /// on small ones. These tiers balance readability with column-width constraints.
 ///
 /// Negative prices are formatted with a leading minus sign.
+#[deprecated(
+    since = "0.2.0",
+    note = "CLI formatting is no longer used. Use API JSON responses instead."
+)]
+#[allow(dead_code)]
 pub fn format_price(price: f64) -> String {
     let sign = if price < 0.0 { "-" } else { "" };
     let abs = price.abs();
     let formatted = if abs < 0.01 {
-        format!("{:.6}", abs)
+        format!("{abs:.6}")
     } else if abs < 1.0 {
-        format!("{:.5}", abs)
+        format!("{abs:.5}")
     } else if abs < 100.0 {
-        format!("{:.4}", abs)
+        format!("{abs:.4}")
     } else {
-        format!("{:.2}", abs)
+        format!("{abs:.2}")
     };
     format!("{sign}{formatted}")
 }
@@ -114,6 +124,11 @@ pub fn format_price(price: f64) -> String {
 /// - >= 1M: `$X.XXM`
 /// - >= 1K: `$X.XXK`
 /// - < 1K: `$X.XX`
+#[deprecated(
+    since = "0.2.0",
+    note = "CLI formatting is no longer used. Use API JSON responses instead."
+)]
+#[allow(dead_code)]
 pub fn format_volume(volume: f64) -> String {
     if volume >= 1_000_000_000.0 {
         format!("${:.2}B", volume / 1_000_000_000.0)
@@ -123,7 +138,7 @@ pub fn format_volume(volume: f64) -> String {
         if m_val >= 999.995 {
             format!("${:.2}B", volume / 1_000_000_000.0)
         } else {
-            format!("${:.2}M", m_val)
+            format!("${m_val:.2}M")
         }
     } else if volume >= 1_000.0 {
         let k_val = volume / 1_000.0;
@@ -131,14 +146,15 @@ pub fn format_volume(volume: f64) -> String {
         if k_val >= 999.995 {
             format!("${:.2}M", volume / 1_000_000.0)
         } else {
-            format!("${:.2}K", k_val)
+            format!("${k_val:.2}K")
         }
     } else {
-        format!("${:.2}", volume)
+        format!("${volume:.2}")
     }
 }
 
 #[cfg(test)]
+#[allow(deprecated)]
 mod tests {
     use super::*;
 
