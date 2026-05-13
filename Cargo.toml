@@ -70,7 +70,7 @@ regex = "1.11"
 dotenvy = "0.15"
 
 # MCP SDK
-rmcp = { version = "0.16.0", features = ["server", "macros", "transport-io"] }
+rmcp = { version = "1.6.0", features = ["server", "macros", "transport-io"] }
 schemars = "1.2"
 
 # URL encoding for query parameters
