@@ -50,7 +50,7 @@ utoipa-swagger-ui = { version = "9", features = ["axum"] }
 ts-rs = "12"
 
 # Authentication
-jsonwebtoken = { version = "10.3", features = ["aws_lc_rs"] }
+jsonwebtoken = { version = "10.4", features = ["aws_lc_rs"] }
 axum-extra = { version = "0.12", features = ["typed-header"] }
 argon2 = "0.5"
 rand = "0.8"
